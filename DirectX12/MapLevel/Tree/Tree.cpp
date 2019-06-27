@@ -22,11 +22,6 @@ void Tree::Initialize(std::shared_ptr<GameEngine>& ge) {
 		ge->SetFBXRotateQuaternion(_treehandles[i], Vector3(1, 0, 0), XMConvertToRadians(-90));
 		
 	}
-	//_treePostions[0] = Vector3(8, 0, -4);
-	//_treePostions[1] = Vector3(11, 0, 16);
-	//_treePostions[2] = Vector3(4, 0, 4);
-	//_treePostions[3] = Vector3(18, 0, 4);
-	//_treePostions[4] = Vector3(12, 0, -4);
 	_treePostions[0] = Vector3(40, 0, 0);
 	_treePostions[1] = Vector3(0, 0, -50);
 	_treePostions[2] = Vector3(-40, 0, 0);
@@ -37,17 +32,13 @@ void Tree::Initialize(std::shared_ptr<GameEngine>& ge) {
 	_offsetpos.x = -11;
 	_offsetpos.y = 4;
 	_offsetpos.z = 0;
-
-
+	//上の座標ずらし量
+	_moveoffset_y = _treeScale[0].y+1;//scale + offset
 
 	
 }
 void Tree::Update(std::shared_ptr<GameEngine>& ge) {
-	//_treePostions[0] = _offsettreepos1;
-	//_treePostions[1] = _offsettreepos2;
-	//_treePostions[2] = _offsettreepos3;
-	//_treePostions[3] = _offsettreepos4;
-	//_treePostions[4] = _offsettreepos5;
+
 	
 	//木を配置する
 	for (int i = 0; i < TREEMAX; i++) {
@@ -56,26 +47,22 @@ void Tree::Update(std::shared_ptr<GameEngine>& ge) {
 		ge->DrawFBXModelDR(_treehandles[i]);
 	}
 
-	/*ge->imguiAddMeshVector(_offsetpos, string("Alltreeofsetpostion"), string("ofsetp_x"), string("ofsetp_y"), string("ofsetp_z"), -50.0f, 50.0f);
-	ge->imguiAddMeshVector(_offsetscale, string("ofsetscale"), string("ofsets_x"), string("ofsets_y"), string("ofsets_z"), 0.0f, 50.0f);
-	ge->imguiAddMeshVector(_offsettreepos1, string("tree1ofsetpostion"), string("ofset1p_x"), string("ofset1p_y"), string("ofset1p_z"), -50.0f, 50.0f);
-	ge->imguiAddMeshVector(_offsettreepos2, string("tree2ofsetpostion"), string("ofset2p_x"), string("ofset2p_y"), string("ofset2p_z"), -50.0f, 50.0f);
-	ge->imguiAddMeshVector(_offsettreepos3, string("tree3ofsetpostion"), string("ofset3p_x"), string("ofset3p_y"), string("ofset3p_z"), -50.0f, 50.0f);
-	ge->imguiAddMeshVector(_offsettreepos4, string("tree4ofsetpostion"), string("ofset4p_x"), string("ofset4p_y"), string("ofset4p_z"), -50.0f, 50.0f);
-	ge->imguiAddMeshVector(_offsettreepos5, string("tree5ofsetpostion"), string("ofset5p_x"), string("ofset5p_y"), string("ofset5p_z"), -50.0f, 50.0f);*/
+#ifdef _DEBUG
+	ge->imguiAddMeshFloat(_moveoffset_y, string("o_y"), string("_moveoffset_y"), 0.0f, 30.0f);
+#endif
 }
 std::vector<Vector3>& Tree::GetPostion() {
 	return _treePostions;
 }
 std::vector<Vector3>& Tree::GetPostion_Offset() {
 	_treePostions_offset = _treePostions;
-	const int offsety = 6;
-	const int offsetx = -11;
-	_treePostions_offset[0] = Vector3(_treePostions[0].x+ offsetx, _treePostions[0].y+ offsety, _treePostions[0].z);
-	_treePostions_offset[1] = Vector3(_treePostions[1].x+ offsetx, _treePostions[1].y + offsety, _treePostions[1].z);
-	_treePostions_offset[2] = Vector3(_treePostions[2].x+ offsetx, _treePostions[2].y + offsety, _treePostions[2].z);
-	_treePostions_offset[3] = Vector3(_treePostions[3].x+ offsetx, _treePostions[3].y + offsety, _treePostions[3].z);
-	_treePostions_offset[4] = Vector3(_treePostions[4].x+ offsetx, _treePostions[4].y + offsety, _treePostions[4].z);
+
+	//座標オフセットを加味した中心座標から上へoffsetした座標を返す
+	_treePostions_offset[0] = Vector3((_treePostions[0].x + _offsetpos.x), (_treePostions[0].y+ _offsetpos.y) + _moveoffset_y, (_treePostions[0].z+ _offsetpos.z));
+	_treePostions_offset[1] = Vector3((_treePostions[1].x+ _offsetpos.x), (_treePostions[1].y+ _offsetpos.y) + _moveoffset_y, (_treePostions[1].z+ _offsetpos.z));
+	_treePostions_offset[2] = Vector3((_treePostions[2].x+ _offsetpos.x), (_treePostions[2].y+ _offsetpos.y)+ _moveoffset_y, (_treePostions[2].z+ _offsetpos.z));
+	_treePostions_offset[3] = Vector3((_treePostions[3].x+ _offsetpos.x), (_treePostions[3].y+ _offsetpos.y)+ _moveoffset_y, (_treePostions[3].z+ _offsetpos.z));
+	_treePostions_offset[4] = Vector3((_treePostions[4].x+ _offsetpos.x), (_treePostions[4].y+ _offsetpos.y)+ _moveoffset_y, (_treePostions[4].z+ _offsetpos.z));
 
 	return _treePostions_offset;
 }

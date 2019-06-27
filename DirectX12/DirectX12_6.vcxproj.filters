@@ -189,6 +189,27 @@
     <ClInclude Include="Character\Cow\Cow.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
+    <ClInclude Include="Entity\Entity.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="DirectXManagers\DX11on12\D3D11On12DeviceManager.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="UI\Canvas\Canvas.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="UI\RECT\RECTUI.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="GameUI\HPbar\HPbar.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="resource.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="DirectXManagers\D2D\D2DManager.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="WinMain.cpp">
@@ -365,6 +386,24 @@
     <ClCompile Include="Character\Cow\Cow.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
+    <ClCompile Include="Entity\Entity.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="DirectXManagers\DX11on12\D3D11On12DeviceManager.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="UI\Canvas\Canvas.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="UI\RECT\RECTUI.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="GameUI\HPbar\HPbar.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="DirectXManagers\D2D\D2DManager.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="resource\ShadaFile\PostProsess\PostEffectPS.hlsl" />
@@ -385,9 +424,17 @@
     <FxCompile Include="resource\ShadaFile\DeferredShading\DeferredShadingVS.hlsl" />
     <FxCompile Include="resource\ShadaFile\DeferredShading\ShadingPS.hlsl" />
     <FxCompile Include="resource\ShadaFile\CS\TestComputeShader.hlsl" />
+    <FxCompile Include="resource\ShadaFile\UI\UIRectVertexShada.hlsl" />
+    <FxCompile Include="resource\ShadaFile\UI\UIRectPixelShada.hlsl" />
   </ItemGroup>
   <ItemGroup>
     <None Include="resource\ShadaFile\MixedHeader.hlsli" />
     <None Include="packages.config" />
+    <None Include="ClassDiagram.cd" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="DirectX12_6.rc">
+      <Filter>リソース ファイル</Filter>
+    </ResourceCompile>
   </ItemGroup>
 </Project>

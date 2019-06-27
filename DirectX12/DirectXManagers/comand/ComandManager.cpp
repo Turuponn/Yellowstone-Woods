@@ -14,25 +14,34 @@
 #include "DirectXManagers\constance\ConstantManager.h"
 #include "DirectXManagers\Texture\TextureManager.h"
 #include "DirectXManagers\PipelineState\PipelineStateManager.h"
+#include "DirectXManagers\swapchain\SwapChainManager.h"
 #include "d3dx12.h"
 
 UINT64 fencevalue = 0;
 ComandManager::ComandManager() {
-	
+	Initialize();
 }
 ComandManager::~ComandManager() {
 	
 }
 
-void ComandManager::Initialize(std::shared_ptr<D3D12DeviceManager>& device) {
+void ComandManager::Initialize() {
 	std::shared_ptr<ComandCreate> cmdcreate(new ComandCreate());
 	std::shared_ptr<ResourceBarrier> rb(new ResourceBarrier());
 	_rb = rb;
 	_comandcreate = cmdcreate;
-
-	_comandcreate->CreateComandAllocator(device->GetDevice(), &_comandAllocator);
-	_comandcreate->CreateComandList(device->GetDevice(), _comandAllocator.Get(), &_comandList);
+}
+void ComandManager::CreateComandAllocators(std::shared_ptr<D3D12DeviceManager>& device, std::shared_ptr<SwapChainManager>& swapchain) {
+	_comandAllocators.resize(swapchain->GetFrameBufferCount());
+	for (int i = 0; i < swapchain->GetFrameBufferCount(); i++) {
+		_comandcreate->CreateComandAllocator(device->GetDevice(), &_comandAllocators[i]);
+	}
+}
+void ComandManager::CreateComandQueue(std::shared_ptr<D3D12DeviceManager>& device) {
 	_comandcreate->CreateCommandQueue(device->GetDevice(), &_comand_queue);
+}
+void ComandManager::CreateComandList(std::shared_ptr<D3D12DeviceManager>& device, std::shared_ptr<SwapChainManager>& swapchain) {
+	_comandcreate->CreateComandList(device->GetDevice(), _comandAllocators[swapchain->GetFrameBufferIndex()].Get(), &_comandList);
 }
 void ComandManager::ComandListWaitPorlling(std::shared_ptr<FenceManager>& fence) {
 	fencevalue++;
@@ -48,19 +57,19 @@ void ComandManager::ComandClose() {
 		printf("Comand:  comandClose Error!\n");
 	}
 }
-void ComandManager::ComandReset() {
-	if (_comandAllocator->Reset()!= S_OK) {
+void ComandManager::ComandReset(std::shared_ptr<SwapChainManager>& swapchain) {
+	if (_comandAllocators[swapchain->GetFrameBufferIndex()]->Reset()!= S_OK) {
 		throw(1);
 	}
 }
 void ComandManager::SetPipeline(std::shared_ptr<PipelineStateManager>& pipelinestate) {
 	_comandList->SetPipelineState(pipelinestate->GetPipelineState());
 }
-void ComandManager::ReSetPipeline(std::shared_ptr<PipelineStateManager>& pipelinestate) {
-	_comandList->Reset(_comandAllocator.Get(), pipelinestate->GetPipelineState());
+void ComandManager::ReSetPipeline(std::shared_ptr<PipelineStateManager>& pipelinestate, std::shared_ptr<SwapChainManager>& swapchain) {
+	_comandList->Reset(_comandAllocators[swapchain->GetFrameBufferIndex()].Get(), pipelinestate->GetPipelineState());
 }
-void ComandManager::ReSetPipeline() {
-	_comandList->Reset(_comandAllocator.Get(),nullptr);
+void ComandManager::ReSetPipeline(std::shared_ptr<SwapChainManager>& swapchain) {
+	_comandList->Reset(_comandAllocators[swapchain->GetFrameBufferIndex()].Get(),nullptr);
 }
 void ComandManager::RootSignatureAttach(std::shared_ptr<RootSignatureManager>& rootsignature) {
 	_comandList->SetGraphicsRootSignature(rootsignature->GetRootSignature());
@@ -107,8 +116,8 @@ void ComandManager::ComandSetDescriptorHeaps(const int descheapnum, ID3D12Descri
 void ComandManager::ComandSetGraphicsRootDescriptorTable(const int rootparamidx, ID3D12DescriptorHeap* heap) {
 	_comandList->SetGraphicsRootDescriptorTable(rootparamidx, heap->GetGPUDescriptorHandleForHeapStart());
 }
-Microsoft::WRL::ComPtr<ID3D12CommandAllocator>& ComandManager::GetComandAllocator() {
-	return _comandAllocator;
+std::vector<Microsoft::WRL::ComPtr<ID3D12CommandAllocator>>& ComandManager::GetComandAllocators() {
+	return _comandAllocators;
 }
 Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList>& ComandManager::GetGraphicsCommandList() {
 	return _comandList;

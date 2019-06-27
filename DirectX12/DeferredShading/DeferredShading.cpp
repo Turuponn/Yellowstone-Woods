@@ -1,4 +1,4 @@
-#include "DeferredShading/DeferredShading.h"
+#include "DeferredShading\DeferredShading.h"
 #include <d3d12.h>
 #include "Library\DirectX12Create\RenderTargetCreate.h"
 #include "DirectXManagers\Device\D3D12DeviceManager.h"
@@ -13,9 +13,11 @@
 #include "DirectXManagers\RenderTarget\RenderTargetManager.h"
 #include "DirectXManagers\Fence\FenceManager.h"
 #include "DirectXManagers/Shada/GS/GSManager.h"
-#include "Camera/Camera.h"
+#include "Graphics\Graphics.h"
+#include "Camera\Camera.h"
 #include "d3dx12.h"
-#include "Layer/Layer.h"
+#include "Layer\Layer.h"
+#include "DirectXManagers\swapchain\SwapChainManager.h"
 
 using namespace std;
 
@@ -170,7 +172,7 @@ void DeferredShading::CreateRT(std::shared_ptr<D3D12DeviceManager>& device) {
 			device->GetDevice(),
 			SCREEN_SIZE_X,
 			SCREEN_SIZE_Y,
-			D3D12_RESOURCE_STATE_RENDER_TARGET,//リソースの状態を切り替える必要がない
+			D3D12_RESOURCE_STATE_RENDER_TARGET,
 			DXGI_FORMAT_R8G8B8A8_UNORM,//テクスチャ用フォーマット
 			&_rtvbuffer[i]
 		);
@@ -230,12 +232,12 @@ void DeferredShading::CreatePipeline(shared_ptr<D3D12DeviceManager>& device, std
 	_mrtPipeline->CreatePStateDeferred(psatate, _rtvformats);
 }
 
-void DeferredShading::PreRender(std::shared_ptr<D3D12DeviceManager>& device, std::shared_ptr<ComandManager>& comand, std::shared_ptr<RenderTargetManager>& rtvmanager, std::shared_ptr<DepthManager>& depth,std::shared_ptr< Camera>& camera,std::shared_ptr< FenceManager>& fence) {
+void DeferredShading::PreRender(std::shared_ptr<D3D12DeviceManager>& device, std::shared_ptr<ComandManager>& comand, std::shared_ptr<Graphics>& graphics,std::shared_ptr<SwapChainManager>& swapchain,std::shared_ptr< Camera>& camera,std::shared_ptr< FenceManager>& fence) {
 	_mrtPipeline->SetPipeline(comand);
 	for (auto& buff : _rtvbuffer) {
 		comand->ComandRBarrier(D3D12_RESOURCE_STATE_RENDER_TARGET,D3D12_RESOURCE_STATE_PRESENT, buff.Get());
 	}
-	rtvmanager->UpdataRTVs(device, comand, depth, _rtvheap->GetCPUDescriptorHandleForHeapStart(), RTVNUM);
+	graphics->RTVUpdata(device, comand,swapchain, _rtvheap->GetCPUDescriptorHandleForHeapStart(), RTVNUM);
 	for (auto& buff : _rtvbuffer) {
 		comand->ComandRBarrier(D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET, buff.Get());
 	}

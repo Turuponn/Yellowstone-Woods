@@ -28,13 +28,13 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v141</PlatformToolset>
+    <PlatformToolset>v142</PlatformToolset>
     <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v141</PlatformToolset>
+    <PlatformToolset>v142</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
@@ -69,7 +69,9 @@
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
-  <PropertyGroup />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <LinkIncremental>true</LinkIncremental>
+  </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
@@ -85,13 +87,14 @@
       <SDLCheck>false</SDLCheck>
       <ConformanceMode>false</ConformanceMode>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
-      <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)DirectX12TURULiblary\include;$(ProgramW6432)\Autodesk\FBX\FBX SDK\2019.0\include;$(DXTEX_2_DIR);..;..\..;$(ProjectDir)\imgui;C:\boost_1_68_0\include\boost-1_69;C:\Users\vtyye\Desktop\WorkSpace\DirectX12_Work\DirectX12_5\DirectX12\packages\okadio\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)DirectX12TURULibrary\Library\include;$(ProgramW6432)\Autodesk\FBX\FBX SDK\2019.0\include;$(DXTEX_2_DIR);..;..\..;$(ProjectDir)\imgui;C:\Users\vtyye\Desktop\WorkSpace\DirectX12_Work\DirectX12_5\DirectX12\packages\okadio\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <DisableSpecificWarnings>4996</DisableSpecificWarnings>
     </ClCompile>
     <Link>
-      <AdditionalLibraryDirectories>C:\Users\vtyye\Desktop\WorkSpace\DirectX12_Work\DirectX12_5\DirectX12\packages\okadio\lib;$(ProjectDir)DirectX12TURULiblary\lib\Debug\MDD;$(ProgramW6432)\Autodesk\FBX\FBX SDK\2019.0\lib\vs2015\x64\debug;$(DXTEX_2_DIR)\DirectXTex\Bin\Desktop_2017_Win10\x64\Debug;C:\boost_1_68_0\stage\lib\x64;C:\Users\vtyye\Desktop\WorkSpace\DirectX12_Work\DirectX12_5\DirectX12\packages\Microsoft.glTF.CPP.1.6.3.1\build\native\lib\x64\Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>DirectX12TURULiblary.lib;DirectXTex.lib;libfbxsdk-md.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>C:\Users\vtyye\Desktop\WorkSpace\DirectX12_Work\DirectX12_5\DirectX12\packages\okadio\lib;$(ProjectDir)DirectX12TURULibrary\Library\lib\Debug\MDD;$(ProgramW6432)\Autodesk\FBX\FBX SDK\2019.0\lib\vs2015\x64\debug;$(DXTEX_2_DIR)\DirectXTex\Bin\Desktop_2017_Win10\x64\Debug;C:\boost_1_68_0\stage\lib\x64;C:\Users\vtyye\Desktop\WorkSpace\DirectX12_Work\DirectX12_5\DirectX12\packages\Microsoft.glTF.CPP.1.6.3.1\build\native\lib\x64\Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>DirectX12TURULibrary.lib;DirectXTex.lib;libfbxsdk-md.lib;d2d1.lib;d3d11.lib;Dwrite.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <OutputFile>$(OutDir)イエローストーンの森$(TargetExt)</OutputFile>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -117,7 +120,7 @@
       <SDLCheck>false</SDLCheck>
       <ConformanceMode>false</ConformanceMode>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
-      <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)DirectX12TURULiblary\include;$(ProgramW6432)\Autodesk\FBX\FBX SDK\2019.0\include;$(DXTEX_2_DIR);..;..\..;$(ProjectDir)\imgui;C:\boost_1_68_0\include\boost-1_69;C:\Users\vtyye\Desktop\WorkSpace\DirectX12_Work\DirectX12_5\DirectX12\packages\okadio\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)DirectX12TURULibrary\Library\include;$(ProgramW6432)\Autodesk\FBX\FBX SDK\2019.0\include;$(DXTEX_2_DIR);..;..\..;$(ProjectDir)\imgui;C:\boost_1_68_0\include\boost-1_69;C:\Users\vtyye\Desktop\WorkSpace\DirectX12_Work\DirectX12_5\DirectX12\packages\okadio\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <DisableSpecificWarnings>4996</DisableSpecificWarnings>
       <BasicRuntimeChecks>Default</BasicRuntimeChecks>
@@ -126,11 +129,16 @@
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>DirectX12TURULiblary.lib;DirectXTex.lib;libfbxsdk-md.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>C:\Users\vtyye\Desktop\WorkSpace\DirectX12_Work\DirectX12_5\DirectX12\packages\okadio\lib;$(ProjectDir)DirectX12TURULiblary\lib\Release\MD;$(ProgramW6432)\Autodesk\FBX\FBX SDK\2019.0\lib\vs2015\x64\release;$(DXTEX_2_DIR)\DirectXTex\Bin\Desktop_2017_Win10\x64\Release;C:\boost_1_68_0\stage\lib\x64;C:\Users\vtyye\Desktop\WorkSpace\DirectX12_Work\DirectX12_6\DirectX12\packages\Microsoft.glTF.CPP.1.6.3.1\build\native\lib\x64\Release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>DirectX12TURULibrary.lib;DirectXTex.lib;libfbxsdk-md.lib;d2d1.lib;d3d11.lib;Dwrite.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>C:\Users\vtyye\Desktop\WorkSpace\DirectX12_Work\DirectX12_5\DirectX12\packages\okadio\lib;$(ProjectDir)DirectX12TURULibrary\Library\lib\Release\MD;$(ProgramW6432)\Autodesk\FBX\FBX SDK\2019.0\lib\vs2015\x64\release;$(DXTEX_2_DIR)\DirectXTex\Bin\Desktop_2017_Win10\x64\Release;C:\boost_1_68_0\stage\lib\x64;C:\Users\vtyye\Desktop\WorkSpace\DirectX12_Work\DirectX12_6\DirectX12\packages\Microsoft.glTF.CPP.1.6.3.1\build\native\lib\x64\Release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <OutputFile>$(OutDir)イエローストーンの森$(TargetExt)</OutputFile>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="DirectXManagers\D2D\D2DManager.h" />
+    <ClInclude Include="GameUI\HPbar\HPbar.h" />
+    <ClInclude Include="resource.h" />
+    <ClInclude Include="UI\Canvas\Canvas.h" />
     <ClInclude Include="Character\Character.h" />
     <ClInclude Include="Character\Cow\Cow.h" />
     <ClInclude Include="Character\Player\Player.h" />
@@ -149,6 +157,7 @@
     <ClInclude Include="DirectXManagers\DepthStencil\Depth\DepthManager.h" />
     <ClInclude Include="DirectXManagers\Device\D3D12DeviceManager.h" />
     <ClInclude Include="DirectXManagers\DirectInput\DirectInputManager.h" />
+    <ClInclude Include="DirectXManagers\DX11on12\D3D11On12DeviceManager.h" />
     <ClInclude Include="DirectXManagers\DxGI\DxGIManager.h" />
     <ClInclude Include="DirectXManagers\FBX\FBXManager.h" />
     <ClInclude Include="DirectXManagers\Fence\FenceManager.h" />
@@ -165,6 +174,7 @@
     <ClInclude Include="DirectXManagers\swapchain\SwapChainManager.h" />
     <ClInclude Include="DirectXManagers\Texture\TextureManager.h" />
     <ClInclude Include="DirectXManagers\vertex\VertexBufferManager.h" />
+    <ClInclude Include="Entity\Entity.h" />
     <ClInclude Include="FowardLayer\FowardLayerManager.h" />
     <ClInclude Include="GameEngine\GameEngine.h" />
     <ClInclude Include="Game\GameScene.h" />
@@ -184,6 +194,7 @@
     <ClInclude Include="MapLevel\Map\Map.h" />
     <ClInclude Include="MapLevel\Tree\Tree.h" />
     <ClInclude Include="PostProsess\PostProsessManager.h" />
+    <ClInclude Include="UI\RECT\RECTUI.h" />
     <ClInclude Include="WhiteTexture\WhiteTextureManager.h" />
     <ClInclude Include="WICTextureLoader\WICTextureLoader.h" />
     <ClInclude Include="WICTextureLoader\WICTextureLoader12.h" />
@@ -191,6 +202,9 @@
     <ClInclude Include="Geometori.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="DirectXManagers\D2D\D2DManager.cpp" />
+    <ClCompile Include="GameUI\HPbar\HPbar.cpp" />
+    <ClCompile Include="UI\Canvas\Canvas.cpp" />
     <ClCompile Include="Character\Character.cpp" />
     <ClCompile Include="Character\Cow\Cow.cpp" />
     <ClCompile Include="Character\Player\Player.cpp" />
@@ -207,6 +221,7 @@
     <ClCompile Include="DirectXManagers\DepthStencil\Depth\DepthManager.cpp" />
     <ClCompile Include="DirectXManagers\Device\D3D12DeviceManager.cpp" />
     <ClCompile Include="DirectXManagers\DirectInput\DirectInputManager.cpp" />
+    <ClCompile Include="DirectXManagers\DX11on12\D3D11On12DeviceManager.cpp" />
     <ClCompile Include="DirectXManagers\DxGI\DxGIManager.cpp" />
     <ClCompile Include="DirectXManagers\FBX\FBXManager.cpp" />
     <ClCompile Include="DirectXManagers\Fence\FenceManager.cpp" />
@@ -223,6 +238,7 @@
     <ClCompile Include="DirectXManagers\swapchain\SwapChainManager.cpp" />
     <ClCompile Include="DirectXManagers\Texture\TextureManager.cpp" />
     <ClCompile Include="DirectXManagers\vertex\VertexBufferManager.cpp" />
+    <ClCompile Include="Entity\Entity.cpp" />
     <ClCompile Include="FowardLayer\FowardLayerManager.cpp" />
     <ClCompile Include="GameEngine\GameEngine.cpp" />
     <ClCompile Include="Game\GameScene.cpp" />
@@ -243,6 +259,7 @@
     <ClCompile Include="MapLevel\Map\Map.cpp" />
     <ClCompile Include="MapLevel\Tree\Tree.cpp" />
     <ClCompile Include="PostProsess\PostProsessManager.cpp" />
+    <ClCompile Include="UI\RECT\RECTUI.cpp" />
     <ClCompile Include="WhiteTexture\WhiteTextureManager.cpp" />
     <ClCompile Include="WICTextureLoader\WICTextureLoader.cpp" />
     <ClCompile Include="WICTextureLoader\WICTextureLoader12.cpp" />
@@ -395,10 +412,38 @@
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Vertex</ShaderType>
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">5.1</ShaderModel>
     </FxCompile>
+    <FxCompile Include="resource\ShadaFile\UI\UIRectPixelShada.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.1</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Compute</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">4.0</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Compute</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">4.0</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">5.1</ShaderModel>
+      <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">UIRectPixelShada</EntryPointName>
+      <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">UIRectPixelShada</EntryPointName>
+    </FxCompile>
+    <FxCompile Include="resource\ShadaFile\UI\UIRectVertexShada.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.1</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Compute</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">4.0</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Compute</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">4.0</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Vertex</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">5.1</ShaderModel>
+      <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">UIRectVertexShada</EntryPointName>
+      <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">UIRectVertexShada</EntryPointName>
+    </FxCompile>
   </ItemGroup>
   <ItemGroup>
+    <None Include="ClassDiagram.cd" />
     <None Include="packages.config" />
     <None Include="resource\ShadaFile\MixedHeader.hlsli" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="DirectX12_6.rc" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -7,21 +7,26 @@
 #include <wrl.h>
 
 struct ID3D12DescriptorHeap;
-class D3D12DeviceManager;
 struct ID3D12Resource;
+
+
+class D3D12DeviceManager;
 class TextureManager;
 class DepthManager;
 class PipelineStateManager;
 class RootSignatureManager;
 class PixcelShadaManager;
 class VertexShadaManager;
-enum DXGI_FORMAT;
 class ComandManager;
 class RenderTargetManager;
 class FenceManager;
 class GSManager;
 class Layer;
 class Camera;
+class SwapChainManager;
+class Graphics;
+
+enum DXGI_FORMAT;
 
 class DeferredShading {
 private:
@@ -46,8 +51,8 @@ public:
 	void PreRender(
 		std::shared_ptr<D3D12DeviceManager>& device,
 		std::shared_ptr<ComandManager>& comand,
-		std::shared_ptr<RenderTargetManager>& rtvmanager, 
-		std::shared_ptr<DepthManager>& depth,
+		std::shared_ptr<Graphics>& graphics,
+		std::shared_ptr<SwapChainManager>& swapchain,
 		std::shared_ptr< Camera>& camera,
 		std::shared_ptr< FenceManager>& fence
 	);

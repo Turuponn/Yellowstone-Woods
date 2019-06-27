@@ -119,7 +119,7 @@ void FBXManager::DeferredRender(FBX_DRAW& fbxdraw, TEXTURE_REGISTER texture_regi
 			fbxdraw.comand->GetGraphicsCommandList()->SetGraphicsRootDescriptorTable(ROOT_PARAM_CONSTANT_DR, handle_cbuff);
 			handle_cbuff.ptr += fbxdraw.device->GetDevice()->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
 			//Draw
-			fbxdraw.comand->GetGraphicsCommandList()->DrawIndexedInstanced(FBXLoader::GetMaterialTable()[0][materialidx].fecenum, 2, indexcount, 0, 0);
+			fbxdraw.comand->GetGraphicsCommandList()->DrawIndexedInstanced(FBXLoader::GetMaterialTable()[0][materialidx].fecenum, 1, indexcount, 0, 0);
 			indexcount += FBXLoader::GetMaterialTable()[0][materialidx].fecenum;
 
 		}

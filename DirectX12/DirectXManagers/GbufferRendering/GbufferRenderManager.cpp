@@ -12,7 +12,9 @@
 #include "DirectXManagers\Shada\Pixcel\PixcelShadaManager.h"
 #include "DirectXManagers\RenderTarget\RenderTargetManager.h"
 #include "DirectXManagers\Fence\FenceManager.h"
-#include "DirectXManagers/Shada/GS/GSManager.h"
+#include "DirectXManagers\Shada\GS\GSManager.h"
+#include "DirectXManagers\swapchain\SwapChainManager.h"
+#include "Graphics\Graphics.h"
 #include "d3dx12.h"
 
 using namespace std;
@@ -133,7 +135,7 @@ namespace {
 		{
 			"JOINTIDX",
 			0,
-			DXGI_FORMAT_R32G32B32A32_UINT,
+			DXGI_FORMAT_R32G32B32A32_FLOAT,
 			0,
 			D3D12_APPEND_ALIGNED_ELEMENT,
 			D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA,
@@ -261,12 +263,12 @@ void GbufferRenderManager::CreatePipeline(shared_ptr<D3D12DeviceManager>& device
 
 }
 
-void GbufferRenderManager::PreRender(std::shared_ptr<D3D12DeviceManager>& device,std::shared_ptr<ComandManager>& comand, std::shared_ptr<RenderTargetManager>& rtvmanager, std::shared_ptr<DepthManager>& depth) {
+void GbufferRenderManager::PreRender(std::shared_ptr<D3D12DeviceManager>& device,std::shared_ptr<ComandManager>& comand,std::shared_ptr<Graphics>& graphics,std::shared_ptr<SwapChainManager>& swapchain) {
 	_mrtPipeline->SetPipeline(comand);
 	for (auto& buff : _rtvbuffer) {
 		comand->ComandRBarrier(D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT, buff.Get());
 	}
-	rtvmanager->UpdataRTVs(device,comand, depth, _rtvheap->GetCPUDescriptorHandleForHeapStart(), RTVNUM);
+	graphics->RTVUpdata(device,comand, swapchain, _rtvheap->GetCPUDescriptorHandleForHeapStart(), RTVNUM);
 	for (auto& buff : _rtvbuffer) {
 		comand->ComandRBarrier(D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET, buff.Get());
 	}

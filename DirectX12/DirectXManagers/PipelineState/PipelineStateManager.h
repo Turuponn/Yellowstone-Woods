@@ -6,15 +6,19 @@
 class PipelineStateCreate;
 class RootSignatureManager;
 class ComandManager;
-struct D3D12_INPUT_ELEMENT_DESC;
+class SwapChainManager;
 class D3D12DeviceManager;
 class VertexShadaManager;
 class PixcelShadaManager;
-struct ID3D12PipelineState;
-struct ID3D12RootSignature;
-enum DXGI_FORMAT;
 class ComputeShadaManager;
 class GSManager;
+
+struct D3D12_INPUT_ELEMENT_DESC;
+struct ID3D12PipelineState;
+struct ID3D12RootSignature;
+
+enum DXGI_FORMAT;
+
 
 
 
@@ -86,7 +90,7 @@ public:
 	//パイプラインをセットする
 	void SetPipeline(std::shared_ptr<ComandManager>& comand);
 	//パイプラインをリセットする
-	void ReSetPipeline(std::shared_ptr<ComandManager>& comand);
+	void ReSetPipeline(std::shared_ptr<ComandManager>& comand, std::shared_ptr<SwapChainManager>& swapchain);
 	/// <summary>
 	/// パイプラインを返す TODO？: グラフィックス用かそれ以外も含めている
 	/// </summary>

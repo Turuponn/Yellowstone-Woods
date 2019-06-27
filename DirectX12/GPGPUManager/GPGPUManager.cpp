@@ -7,6 +7,7 @@
 #include "DirectXManagers\PipelineState\PipelineStateManager.h"
 #include "DirectXManagers\rootsignature\RootSignatureManager.h"
 #include "DirectXManagers\Fence\FenceManager.h"
+#include "DirectXManagers\swapchain\SwapChainManager.h"
 #include <wchar.h>
 #include <tchar.h>
 #include <vector>
@@ -67,7 +68,7 @@ void GPGPUManager::CreateUAVBuffer(std::shared_ptr<D3D12DeviceManager>& device) 
 	//_csm->bufferUnMap();//UnMap‚µ‚½‚çƒGƒ‰[‚É‚È‚éH
 
 }
-void GPGPUManager::Update(std::shared_ptr<ComandManager>& comand, std::shared_ptr<FenceManager>& fence) {
+void GPGPUManager::Update(std::shared_ptr<ComandManager>& comand, std::shared_ptr<FenceManager>& fence,std::shared_ptr<SwapChainManager>& swapchain) {
 	_pmanager->SetPipeline(comand);
 	
 	
@@ -103,8 +104,8 @@ void GPGPUManager::Update(std::shared_ptr<ComandManager>& comand, std::shared_pt
 	comand->ComandClose();
 	comand->ComandExecuteCommandList();
 	comand->ComandListWaitPorlling(fence);
-	comand->ComandReset();
-	_pmanager->ReSetPipeline(comand);
+	comand->ComandReset(swapchain);
+	_pmanager->ReSetPipeline(comand, swapchain);
 
 	testdata.assign((float*)_address, (float*)_address + testdata.size());
 

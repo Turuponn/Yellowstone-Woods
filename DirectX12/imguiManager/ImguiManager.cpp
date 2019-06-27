@@ -5,7 +5,6 @@
 #include "d3dx12.h"
 #include <Windows.h>
 #include "Graphics\Graphics.h"
-#include "DirectXManagers\swapchain\SwapChainManager.h"
 #include "imgui.h"
 #include "imguiManager\imgui\imgui_impl_win32.h"
 #include "imguiManager\imgui\imgui_impl_dx12.h"

@@ -1,4 +1,4 @@
-#include "PostProsess/PostProsessManager.h"
+#include "PostProsess\PostProsessManager.h"
 #include <d3d12.h>
 #include "Library\DirectX12Create\RenderTargetCreate.h"
 #include "DirectXManagers\Device\D3D12DeviceManager.h"
@@ -12,10 +12,12 @@
 #include "DirectXManagers\Shada\Pixcel\PixcelShadaManager.h"
 #include "DirectXManagers\RenderTarget\RenderTargetManager.h"
 #include "DirectXManagers\Fence\FenceManager.h"
-#include "DirectXManagers/Shada/GS/GSManager.h"
-#include "Camera/Camera.h"
+#include "DirectXManagers\Shada\GS\GSManager.h"
+#include "Camera\Camera.h"
 #include "d3dx12.h"
-#include "Layer/Layer.h"
+#include "Layer\Layer.h"
+#include "DirectXManagers\swapchain\SwapChainManager.h"
+#include "Graphics\Graphics.h"
 
 using namespace std;
 
@@ -131,7 +133,7 @@ void PostProsessManager::Initialize(std::shared_ptr<D3D12DeviceManager>& device,
 	l.VSFilepath = VSFilepath2;
 
 	_layer->CreateLayer(device, rootsignature, l);
-	CreateGbuffer(device, comand, rootsignature);
+	CreateGbuffer(device, comand, rootsignature);//パスを追加するためにG-bufferの作成を行います。
 }
 void PostProsessManager::CreateRT(std::shared_ptr<D3D12DeviceManager>& device) {
 	shared_ptr<RenderTargetCreate> rtc(new RenderTargetCreate());
@@ -204,13 +206,13 @@ void PostProsessManager::CreatePipeline(shared_ptr<D3D12DeviceManager>& device, 
 	_mrtPipeline->CreatePStateDeferred(psatate, _rtvformats);
 }
 
-void PostProsessManager::PreRender(std::shared_ptr<D3D12DeviceManager>& device, std::shared_ptr<ComandManager>& comand, std::shared_ptr<RenderTargetManager>& rtvmanager, std::shared_ptr<DepthManager>& depth, std::shared_ptr< Camera>& camera, std::shared_ptr< FenceManager>& fence) {
+void PostProsessManager::PreRender(std::shared_ptr<D3D12DeviceManager>& device, std::shared_ptr<ComandManager>& comand, std::shared_ptr<Graphics>& graphics, std::shared_ptr<SwapChainManager>& swapchain, std::shared_ptr< Camera>& camera, std::shared_ptr< FenceManager>& fence) {
 	_mrtPipeline->SetPipeline(comand);
 	//テクスチャを書き込みに設定
 	for (auto& buff : _rtvbuffer) {
 		comand->ComandRBarrier(D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT, buff.Get());
 	}
-	rtvmanager->UpdataRTVs(device, comand, depth, _rtvheap->GetCPUDescriptorHandleForHeapStart(), RTVNUM);
+	graphics->RTVUpdata(device, comand,swapchain,_rtvheap->GetCPUDescriptorHandleForHeapStart(), RTVNUM);
 	for (auto& buff : _rtvbuffer) {
 		comand->ComandRBarrier(D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET, buff.Get());
 	}

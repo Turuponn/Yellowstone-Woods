@@ -19,44 +19,45 @@ Graphics::Graphics() {
 Graphics::~Graphics() {
 	
 }
-void Graphics::Initialize(std::shared_ptr<ComandManager>& comand, std::shared_ptr<D3D12DeviceManager>& device, std::shared_ptr<DxGIManager>& dxgi, HWND& hwnd) {
+void Graphics::Initialize(std::shared_ptr<ComandManager>& comand, std::shared_ptr<D3D12DeviceManager>& device, std::shared_ptr<DxGIManager>& dxgi, std::shared_ptr<SwapChainManager>& swapchain) {
 	std::shared_ptr<DepthManager> depth(new DepthManager());
 	_depth = depth;
-	std::shared_ptr<SwapChainManager> sc(new SwapChainManager());
-	_swapchain = sc;
-	std::shared_ptr<RenderTargetManager> rt(new RenderTargetManager());
-	_rendertargetmanager = rt;
 	std::shared_ptr<RootSignatureManager> rs(new RootSignatureManager());
 	_rootsignature = rs;
-
-	_swapchain->Initialize(device, comand, dxgi, hwnd);
-	_rendertargetmanager->Initialize(device, _swapchain);
+	RenderTargetManager::Initialize(device,comand, swapchain);
 	_depth->Initialize(device);
 	_rootsignature->Initialize(device);
 }
-void Graphics::Updata(std::shared_ptr<ComandManager>& comand) {
-	_rendertargetmanager->Updata(_swapchain,comand, _depth);
+void Graphics::RTVUpdata(std::shared_ptr<D3D12DeviceManager>& device,std::shared_ptr<ComandManager>& comand, std::shared_ptr<SwapChainManager>& swapchain, D3D12_CPU_DESCRIPTOR_HANDLE& startdescheap, const int heapnum) {
+	RenderTargetManager::UpdataRTVs(device,comand, _depth, swapchain, startdescheap,heapnum);
 }
-void Graphics::ScreenFlip(std::shared_ptr<ComandManager>& comand,std::shared_ptr<FenceManager>& fence) {
+void Graphics::RTVSwapChainUpdate(std::shared_ptr<D3D12DeviceManager>& device,std::shared_ptr<ComandManager>& comand,std::shared_ptr<SwapChainManager>& swapchain) {
+	RenderTargetManager::UpdataRTV(swapchain,comand,_depth);
+}
+void Graphics::ScreenFlip(std::shared_ptr<ComandManager>& comand,std::shared_ptr<FenceManager>& fence,std::shared_ptr<SwapChainManager>& swapchain) {
 	comand->ComandClose();
 	comand->ComandExecuteCommandList();
 	comand->ComandListWaitPorlling(fence);
-	comand->ComandReset();
-	comand->ReSetPipeline();
-	if (_swapchain->GetSwapChain()->Present(0, 0) != S_OK) { throw(1); }	
+	comand->ComandReset(swapchain);
+	comand->ReSetPipeline(swapchain);
+	if (swapchain->GetSwapChain()->Present(0, 0) != S_OK) { throw(1); }
 }
-
+void Graphics::D2DFlip(std::shared_ptr<ComandManager>& comand, std::shared_ptr<FenceManager>& fence, std::shared_ptr<SwapChainManager>& swapchain) {
+	RenderTargetManager::RenderUI(swapchain,comand);
+	
+	comand->ComandClose();
+	comand->ComandExecuteCommandList();
+	comand->ComandListWaitPorlling(fence);
+}
+void Graphics::PreRTV(std::shared_ptr<ComandManager>& comand, std::shared_ptr<SwapChainManager>& swapchain) {
+	RenderTargetManager::PreRTV(comand, swapchain);
+}
+void Graphics::PostRTV(std::shared_ptr<ComandManager>& comand, std::shared_ptr<SwapChainManager>& swapchain) {
+	RenderTargetManager::PostRTV(comand, swapchain);
+}
 std::shared_ptr<RootSignatureManager>& Graphics::GetRootSignature() {
 	return _rootsignature;
 }
-
-std::shared_ptr<SwapChainManager>& Graphics::GetSwapChain() {
-	return _swapchain;
-}
-
 std::shared_ptr<DepthManager>& Graphics::GetDepth() {
 	return _depth;
-}
-std::shared_ptr<RenderTargetManager>& Graphics::GetRTV() {
-	return _rendertargetmanager;
 }

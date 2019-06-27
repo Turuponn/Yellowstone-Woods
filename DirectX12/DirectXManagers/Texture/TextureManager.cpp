@@ -32,10 +32,8 @@ TextureManager::TextureManager() {
 TextureManager::~TextureManager() {
 
 }
-void TextureManager::WICLoadTextureBinary(std::shared_ptr<D3D12DeviceManager>& device) {
-	
-}
-void TextureManager::WICLoadTexture(std::shared_ptr<D3D12DeviceManager>& device, std::shared_ptr<ComandManager>& comand, std::shared_ptr<FenceManager>& fence,  const std::string& filepath) {
+
+void TextureManager::WICLoadTexture(std::shared_ptr<D3D12DeviceManager>& device,std::shared_ptr<ComandManager>& comand, const std::string& filepath) {
 
 	std::shared_ptr<TextureCreate> tex_create(new TextureCreate());
 	std::shared_ptr<ResourceBarrier> r(new ResourceBarrier());
@@ -49,17 +47,76 @@ void TextureManager::WICLoadTexture(std::shared_ptr<D3D12DeviceManager>& device,
 	if (result != S_OK) {
 		throw(1);
 	}
-	tex_create->CreateBuffer(device->GetDevice(), (int)metadata.width, (int)metadata.height, &_texturebuffer);
+	
+
+	tex_create->CreateBuffer(device->GetDevice(), metadata.width, metadata.height, metadata.format, &_texturebuffer);
 	tex_create->TextureBufferSubresource((int)metadata.width, (int)metadata.height, (char*)img.GetPixels(), _texturebuffer.Get());
 	tex_create->TextureShadaResoceView(
 		device->GetDevice(),
 		_texturebuffer.Get(),
 		_texdescheap.Get(),
 		_texdescheap->GetCPUDescriptorHandleForHeapStart(),
-		DXGI_FORMAT_R8G8B8A8_UNORM 
+		metadata.format
 	);
-	
-	
+
+	//result = E_FAIL;
+	//D3D12_HEAP_PROPERTIES heap_propatie = {};
+	//heap_propatie.Type = D3D12_HEAP_TYPE_CUSTOM;//カスタム
+	//heap_propatie.CPUPageProperty = D3D12_CPU_PAGE_PROPERTY_WRITE_BACK;//書き込み、結合
+	//heap_propatie.MemoryPoolPreference = D3D12_MEMORY_POOL_L0;//GPUかきこみ
+	//heap_propatie.CreationNodeMask = 1;
+	//heap_propatie.VisibleNodeMask = 1;
+
+
+	//D3D12_RESOURCE_DESC texResourceDesc = {};
+	//texResourceDesc.Dimension = D3D12_RESOURCE_DIMENSION_TEXTURE2D;//2Dのテクスチャ
+	//texResourceDesc.Alignment = 0;//アライメント配置
+	//texResourceDesc.Width = metadata.width;//テクスチャサイズ
+	//texResourceDesc.Height = metadata.height;
+	//texResourceDesc.DepthOrArraySize = 1;
+	//texResourceDesc.Format = metadata.format;//フォーマットを合わせる(pngのようにFormatの並びがバラバラでも対応できるように)
+	//texResourceDesc.SampleDesc.Count = 1;//アンチエイリアシング用
+	//texResourceDesc.SampleDesc.Quality = 0;//最低品質
+	//texResourceDesc.Flags = D3D12_RESOURCE_FLAG_NONE;
+	//texResourceDesc.Layout = D3D12_TEXTURE_LAYOUT_UNKNOWN;
+
+
+
+	//result = device->GetDevice()->CreateCommittedResource(
+	//	&heap_propatie,
+	//	D3D12_HEAP_FLAG_NONE,
+	//	&texResourceDesc,
+	//	D3D12_RESOURCE_STATE_COPY_DEST,//リソースを書き込み専用にする
+	//	nullptr,
+	//	IID_PPV_ARGS(&_texturebuffer)
+	//);
+	//if (result != S_OK) {
+	//	throw(1);
+	//}
+
+
+	////テクスチャバッファへの書き込み
+	//result = E_FAIL;
+	//D3D12_BOX texbox = { 0 };//直方体の指定
+	//texbox.left = 0;
+	//texbox.top = 0;
+	//texbox.right = metadata.width;
+	//texbox.bottom = metadata.height;
+	//texbox.front = 0;
+	//texbox.back = 1;
+
+
+	//result = _texturebuffer->WriteToSubresource(
+	//	0,
+	//	&texbox,
+	//	img.GetPixels(),
+	//	sizeof(uint32_t)* metadata.width,//sizeof(uint32_t)==4byte(32bit)==UINT(MSDN) RowPitch
+	//	sizeof(uint32_t)*metadata.width*metadata.height// SlicePitch
+	//);
+	//if (result != S_OK) {
+	//	throw(1);
+	//}
+
 }
 
 void TextureManager::SRVCreateHeap(std::shared_ptr<D3D12DeviceManager>& device) {
@@ -92,7 +149,7 @@ void TextureManager::SRVCreateView(std::shared_ptr<D3D12DeviceManager>& device, 
 }
 void TextureManager::SRVBuffer(std::shared_ptr<D3D12DeviceManager>& device,void* pdata,const int size_x, const int size_y) {
 	std::shared_ptr<TextureCreate> tex_create(new TextureCreate());
-	tex_create->CreateBuffer(device->GetDevice(), size_x, size_y, &_texturebuffer);
+	tex_create->CreateBuffer(device->GetDevice(), size_x, size_y,DXGI_FORMAT_R8G8B8A8_UNORM, &_texturebuffer);
 	tex_create->TextureBufferSubresource(size_x, size_y, (char*)pdata, _texturebuffer.Get());
 }
 void TextureManager::DrawSrv(std::shared_ptr<ComandManager>& comand) {
@@ -101,9 +158,7 @@ void TextureManager::DrawSrv(std::shared_ptr<ComandManager>& comand) {
 ID3D12DescriptorHeap* TextureManager::GetSrvHeap() {
 	return _texdescheap.Get();
 }
-
-
-void TextureManager::LoadDDSTexture(std::shared_ptr<D3D12DeviceManager>& device, std::shared_ptr<ComandManager>& comand, std::shared_ptr<FenceManager>& fence, const std::string& texfilepath) {
+void TextureManager::LoadDDSTexture(std::shared_ptr<D3D12DeviceManager>& device, std::shared_ptr<ComandManager>& comand, const std::string& texfilepath) {
 
 	HRESULT result = E_FAIL;
 
@@ -175,29 +230,36 @@ void TextureManager::LoadDDSTexture(std::shared_ptr<D3D12DeviceManager>& device,
 
 
 }
-void TextureManager::LoadTGATexture(std::shared_ptr<D3D12DeviceManager>& device, std::shared_ptr<ComandManager>& comand, std::shared_ptr<FenceManager>& fence, std::shared_ptr<RootSignatureManager>& rootsignaturemanager,const std::string& filepath) {
+void TextureManager::LoadTGATexture(std::shared_ptr<D3D12DeviceManager>& device,const std::string& filepath) {
 
 	std::shared_ptr<TGALoader> tga(new TGALoader());
 	std::shared_ptr<TextureCreate> tex_create(new TextureCreate());
 	std::shared_ptr<ResourceBarrier> r(new ResourceBarrier());
-	tex_create->CreateDescHeap(device->GetDevice(), rootsignaturemanager->GetRengeType()[ROOT_PARAM_TEXTURE].NumDescriptors, &_texdescheap);
+	tex_create->CreateDescHeap(device->GetDevice(), 1, &_texdescheap);//1=rootsignaturemanager->GetRengeType()[ROOT_PARAM_TEXTURE].NumDescriptors
 
-	TGAImageData* pixdata = nullptr;
+	TGAImageData* pixdata = nullptr; 
 	tga->LoadImageTGA(filepath, &pixdata);
-	tex_create->CreateBuffer(device->GetDevice(), (int)pixdata->header.imagewidth[0], (int)pixdata->header.imageheight[0], &_texturebuffer);
+	//TODO:　
+	DXGI_FORMAT forms;
+	switch (pixdata->format) {
+	case TGAFormat::TGA_RGB:
+		forms = DXGI_FORMAT::DXGI_FORMAT_B8G8R8A8_UNORM_SRGB;//
+		break;
+	case TGAFormat::TGA_RGBA:
+		forms = DXGI_FORMAT::DXGI_FORMAT_R8G8B8A8_UNORM;
+		break;
+	default:
+		break;
+	}
+	tex_create->CreateBuffer(device->GetDevice(), (int)pixdata->header.imagewidth[0], (int)pixdata->header.imageheight[0], forms, &_texturebuffer);
 	tex_create->TextureBufferSubresource((int)pixdata->header.imagewidth[0], (int)pixdata->header.imageheight[0], (char*)&pixdata->pixdataList[0], _texturebuffer.Get());
-
-	comand->ComandRBarrier(D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE, _texturebuffer.Get());
-	comand->GetGraphicsCommandList()->Close();
-	comand->ComandExecuteCommandList();
-	comand->ComandListWaitPorlling(fence);	
 
 	tex_create->TextureShadaResoceView(
 		device->GetDevice(),
 		_texturebuffer.Get(),
 		_texdescheap.Get(),
 		_texdescheap->GetCPUDescriptorHandleForHeapStart(),
-		DXGI_FORMAT_R8G8B8A8_UNORM  //24 32どちらもメモリ効率的に累乗に合わせるため RGBのみのformatは存在しない
+		DXGI_FORMAT_R8G8B8A8_UNORM  
 	);
 
 }

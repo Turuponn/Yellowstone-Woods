@@ -7,8 +7,14 @@ public:
 	Cow();
 	virtual ~Cow();
 	virtual void Initialize(std::shared_ptr<GameEngine>& ge);
+	virtual const Vector3& GetPostion();
 	
+	virtual const Vector3& GetScale();
+	virtual void SetPostion(const Vector3& newpos);
+	virtual void SetScale(const Vector3& newscale);
+
 	void Update(std::shared_ptr<GameEngine>& ge);
+	
 
 private:
 	Posture _cowinit;//èâä˙épê®
@@ -22,5 +28,6 @@ private:
 
 	DirectX::XMVECTOR _oldvec;
 	int _fbxhandle;
+	int _animframecount;
 
 };

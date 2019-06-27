@@ -8,20 +8,21 @@
 
 
 struct ID3D12DescriptorHeap;
-class D3D12DeviceManager;
 struct ID3D12Resource;
+
+class D3D12DeviceManager;
 class TextureManager;
-class DepthManager;
 class PipelineStateManager;
 class RootSignatureManager;
 class PixcelShadaManager;
 class VertexShadaManager;
-enum DXGI_FORMAT;
 class ComandManager;
-class RenderTargetManager;
+class Graphics;
 class FenceManager;
 class GSManager;
+class SwapChainManager;
 
+enum DXGI_FORMAT;
 class GbufferRenderManager {
 private:
 	void CreateRT(std::shared_ptr<D3D12DeviceManager>& device);
@@ -42,7 +43,12 @@ public:
 	/// <summary>
 	/// 遅延レンダリング開始
 	/// </summary>
-	void PreRender(std::shared_ptr<D3D12DeviceManager>& device, std::shared_ptr<ComandManager>& comand, std::shared_ptr<RenderTargetManager>& rtvmanager, std::shared_ptr<DepthManager>& depth);
+	void PreRender(
+		std::shared_ptr<D3D12DeviceManager>& device,
+		std::shared_ptr<ComandManager>& comand,
+		std::shared_ptr<Graphics>& graphics,
+		std::shared_ptr<SwapChainManager>& swapchain
+	);
 	/// <summary>
 	/// 遅延レンダリング終了
 	/// </summary>

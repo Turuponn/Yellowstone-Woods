@@ -6,8 +6,6 @@
 #include <DDSTextureLoader\DDSTextureLoader12.h>
 #include "DirectXManagers\Texture\TextureManager.h"
 #include "DirectXManagers\comand\ComandManager.h"
-#include "DirectXManagers\Fence\FenceManager.h"
-#include "DirectXManagers\rootsignature\RootSignatureManager.h"
 #include "DirectXManagers\FBX\FBXManager.h"
 #include "DirectXManagers\PipelineState\PipelineStateManager.h"
 #include "DirectXManagers\Shada\Vertex\VertexShadaManager.h"
@@ -36,9 +34,9 @@ CubeMapManager::CubeMapManager() {
 CubeMapManager::~CubeMapManager() {
 
 }
-void CubeMapManager::LoadCubeMap(std::shared_ptr<D3D12DeviceManager>& device,std::shared_ptr<ComandManager>& comand,std::shared_ptr<FenceManager>& fence,std::shared_ptr<RootSignatureManager>& rootsignature,const std::string& texfilepath) {
+void CubeMapManager::LoadCubeMap(std::shared_ptr<D3D12DeviceManager>& device,std::shared_ptr<ComandManager>& comand,const std::string& texfilepath) {
 		std::shared_ptr<TextureManager> tex(new TextureManager());
-		tex->LoadDDSTexture(device,comand,fence, texfilepath);
+		tex->LoadDDSTexture(device,comand, texfilepath);
 		_texM = tex;
 	
 

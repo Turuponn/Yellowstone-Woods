@@ -1,6 +1,7 @@
 #pragma once
 
 #include <Windows.h>
+#include <memory>
 
 namespace WindowsNS {
 	struct SCREENSIZE {
@@ -14,6 +15,7 @@ struct WINDOWCREATE {
 	WindowsNS::SCREENSIZE screensize;
 };
 
+class D2DManager;
 
 class WindowInit {
 private:
@@ -38,6 +40,8 @@ public:
 	void SetimGuiResetF(bool newf);
 	void SetSwapChainResetF(bool newf);
 	void SetRtvResetF(bool newf);
+
+	
 private:
 	static WindowInit* mInstance;
 	HINSTANCE hInst;
@@ -47,4 +51,5 @@ private:
 	bool _imguiResetF;
 	bool _swapchainResetF;
 	bool _rtvResetF;
+	
 };

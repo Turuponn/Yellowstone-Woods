@@ -6,13 +6,17 @@
 
 class D3D12DeviceManager;
 class ComandManager;
-struct ID3D12Resource;
-struct ID3D12DescriptorHeap;
 class ComputeShadaManager;
 class PipelineStateManager;
 class RootSignatureManager;
-struct ID3D12PipelineState;
 class FenceManager;
+class SwapChainManager;
+
+struct ID3D12PipelineState;
+struct ID3D12Resource;
+struct ID3D12DescriptorHeap;
+
+
 
 class GPGPUManager {
 private:
@@ -29,7 +33,7 @@ public:
 
 	void Initialize(std::shared_ptr<D3D12DeviceManager>& device, std::shared_ptr<RootSignatureManager>& rootsignetur, std::shared_ptr<ComandManager>& comand);
 
-	void Update(std::shared_ptr<ComandManager>& comand, std::shared_ptr<FenceManager>& fence);
+	void Update(std::shared_ptr<ComandManager>& comand, std::shared_ptr<FenceManager>& fence, std::shared_ptr<SwapChainManager>& swapchain);
 
 
 private:

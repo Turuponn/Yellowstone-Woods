@@ -11,6 +11,7 @@
 #include "DirectXManagers\Shada\Pixcel\PixcelShadaManager.h"
 #include "DirectXManagers\rootsignature\RootSignatureManager.h"
 #include "DirectXManagers\Shada\CS\ComputeShadaManager.h"
+#include "DirectXManagers\swapchain\SwapChainManager.h"
 #include "DirectXManagers\Shada\GS\GSManager.h"
 
 PipelineStateManager::PipelineStateManager() {
@@ -69,8 +70,8 @@ void PipelineStateManager::CreateComputeShadaPipeline(PSTATEM_COMPUTE& compute) 
 void PipelineStateManager::SetPipeline(std::shared_ptr<ComandManager>& comand) {
 	comand->GetGraphicsCommandList()->SetPipelineState(_pipelinestate);
 }
-void PipelineStateManager::ReSetPipeline(std::shared_ptr<ComandManager>& comand) {
-	comand->GetGraphicsCommandList()->Reset(comand->GetComandAllocator().Get(), _pipelinestate);
+void PipelineStateManager::ReSetPipeline(std::shared_ptr<ComandManager>& comand,std::shared_ptr<SwapChainManager>& swapchain) {
+	comand->GetGraphicsCommandList()->Reset(comand->GetComandAllocators()[swapchain->GetFrameBufferIndex()].Get(), _pipelinestate);
 }
 
 ID3D12PipelineState*& PipelineStateManager::GetPipelineState() {

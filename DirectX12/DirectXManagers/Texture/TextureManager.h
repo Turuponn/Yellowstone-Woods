@@ -42,64 +42,74 @@ public:
 	/// <summary>
 	/// WICをつかったテクスチャロード
 	/// </summary>
-	/// <param name="device"></param>
-	/// <param name="comand"></param>
-	/// <param name="fence"></param>
-	/// <param name="filepath"></param>
 	void WICLoadTexture(
 		std::shared_ptr<D3D12DeviceManager>& device,
 		std::shared_ptr<ComandManager>& comand,
-		std::shared_ptr<FenceManager>& fence,
 		const std::string& filepath
 	);
-	void WICLoadTextureBinary(std::shared_ptr<D3D12DeviceManager>& device);
 	void LoadTGATexture(
 		std::shared_ptr<D3D12DeviceManager>& device,
-		std::shared_ptr<ComandManager>& comand,
-		std::shared_ptr<FenceManager>& fence,
-		std::shared_ptr<RootSignatureManager>& rootsignaturemanager,
 		const std::string& filepath
 	);
 	/// <summary>
 	/// DDSTexのロード : キューブマップ用にロード
 	/// </summary>
-	/// <param name="device"></param>
-	/// <param name="comand"></param>
-	/// <param name="fence"></param>
-	/// <param name="texfilepath"></param>
-	void LoadDDSTexture(std::shared_ptr<D3D12DeviceManager>& device, std::shared_ptr<ComandManager>& comand, std::shared_ptr<FenceManager>& fence,const std::string& texfilepath);
+	void LoadDDSTexture(
+		std::shared_ptr<D3D12DeviceManager>& device,
+		std::shared_ptr<ComandManager>& comand,
+		const std::string& texfilepath
+	);
 	/// <summary>
 	/// テクスチャ用ヒープの作成
 	/// </summary>
 	void SRVCreateHeap(std::shared_ptr<D3D12DeviceManager>& device);
-	void SRVCreateHeap(std::shared_ptr<D3D12DeviceManager>& device,const int descnum);
+	void SRVCreateHeap(
+		std::shared_ptr<D3D12DeviceManager>& device,
+		const int descnum);
 	/// <summary>
 	/// SRV用ビューの作成
 	/// </summary>
 	/// <param name="device"></param>
 	/// <param name="srvtexformat"> Texture型と合わせる</param>
 	/// <param name="buff"> バッファを入れる</param>
-	void SRVCreateView(std::shared_ptr<D3D12DeviceManager>& device, DXGI_FORMAT srvtexformat, Microsoft::WRL::ComPtr<ID3D12Resource>& buff);
-	void SRVCreateView(std::shared_ptr<D3D12DeviceManager>& device, DXGI_FORMAT srvtexformat);
+	void SRVCreateView(
+		std::shared_ptr<D3D12DeviceManager>& device,
+		DXGI_FORMAT srvtexformat,
+		Microsoft::WRL::ComPtr<ID3D12Resource>& buff
+	);
+	void SRVCreateView(
+		std::shared_ptr<D3D12DeviceManager>& device,
+		DXGI_FORMAT srvtexformat
+	);
 	/// <summary>
 	/// バッファ作成
 	/// </summary>
-	void SRVBuffer(std::shared_ptr<D3D12DeviceManager>& device, void* pdata, const int size_x, const int size_y);
-
+	void SRVBuffer(
+		std::shared_ptr<D3D12DeviceManager>& device,
+		void* pdata,
+		const int size_x, 
+		const int size_y
+	);
 	/// <summary>
 	/// 描画
 	/// </summary>
-	/// <param name="comand"></param>
 	/// <param name="descnum"></param>
 	/// <param name="texture_register"></param>
-	void DrawImage(std::shared_ptr<ComandManager>& comand, const int descnum, TEXTURE_REGISTER texture_register);
-
+	void DrawImage(
+		std::shared_ptr<ComandManager>& comand,
+		const int descnum,
+		TEXTURE_REGISTER texture_register
+	);
+	/// <summary>
+	/// imgui等 個別に表示したい場合用
+	/// </summary>
+	/// <param name="comand"></param>
 	void DrawSrv(std::shared_ptr<ComandManager>& comand);
 
 	
 
 
-
+	//TODO:　自己参照
 	ID3D12DescriptorHeap* GetSrvHeap();
 	const std::string& GetTextureName();
 private:

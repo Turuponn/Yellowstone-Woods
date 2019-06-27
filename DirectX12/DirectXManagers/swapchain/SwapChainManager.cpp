@@ -33,11 +33,17 @@ void SwapChainManager::CreateSwapChainView(std::shared_ptr<D3D12DeviceManager>& 
 	int renderTargetsNum = swcDesc.BufferCount;
 	scV->CreateSwapChainViewDesc(device->GetDevice(), renderTargetsNum, &_descheap);
 }
-
+int SwapChainManager::GetFrameBufferCount() {
+	DXGI_SWAP_CHAIN_DESC swcDesc = {};
+	_swapchain->GetDesc(&swcDesc);
+	return swcDesc.BufferCount;
+}
+int SwapChainManager::GetFrameBufferIndex() {
+	return (UINT)_swapchain->GetCurrentBackBufferIndex();
+}
 Microsoft::WRL::ComPtr<IDXGISwapChain3>& SwapChainManager::GetSwapChain() {
 	return _swapchain;
 }
-
 Microsoft::WRL::ComPtr<ID3D12DescriptorHeap>& SwapChainManager::GetSwapChainDescHeap() {
 	return _descheap;
 }

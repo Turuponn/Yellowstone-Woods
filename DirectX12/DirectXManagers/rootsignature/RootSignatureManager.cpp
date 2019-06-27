@@ -73,7 +73,12 @@ void RootSignatureManager::InitSmpler() {
 	mode.addressU = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
 	mode.addressV = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
 	mode.addressW = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
+	_staticSamplers.push_back(sm->StaticSampTexture2(_rangeType[ROOT_PARAM_TEXTURE_CANVAS_COLOR].BaseShaderRegister, mode));
+	mode.addressU = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
+	mode.addressV = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
+	mode.addressW = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
 	_staticSamplers.push_back(sm->StaticSampTexture2(_rangeType[ROOT_PARAM_TEXTURE_UAV_TEST].BaseShaderRegister, mode));
+	
 }
 
 #pragma region RootParameters
@@ -124,6 +129,11 @@ void RootSignatureManager::InitRootParameters() {
 	_numParameters[ROOT_PARAM_TEXTURE_PP_COLOR].DescriptorTable.NumDescriptorRanges = 1;
 	_numParameters[ROOT_PARAM_TEXTURE_PP_COLOR].DescriptorTable.pDescriptorRanges = &_rangeType[ROOT_PARAM_TEXTURE_PP_COLOR];
 	_numParameters[ROOT_PARAM_TEXTURE_PP_COLOR].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
+	//Canvas: color
+	_numParameters[ROOT_PARAM_TEXTURE_CANVAS_COLOR].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
+	_numParameters[ROOT_PARAM_TEXTURE_CANVAS_COLOR].DescriptorTable.NumDescriptorRanges = 1;
+	_numParameters[ROOT_PARAM_TEXTURE_CANVAS_COLOR].DescriptorTable.pDescriptorRanges = &_rangeType[ROOT_PARAM_TEXTURE_CANVAS_COLOR];
+	_numParameters[ROOT_PARAM_TEXTURE_CANVAS_COLOR].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
 
 	//UAVóp
 	_numParameters[ROOT_PARAM_TEXTURE_UAV_TEST].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
@@ -157,7 +167,11 @@ void RootSignatureManager::InitRootParameters() {
 	_numParameters[ROOT_PARAM_CONSTANT_TESTBONE].DescriptorTable.NumDescriptorRanges = 1;
 	_numParameters[ROOT_PARAM_CONSTANT_TESTBONE].DescriptorTable.pDescriptorRanges = &_rangeType[ROOT_PARAM_CONSTANT_TESTBONE];
 	_numParameters[ROOT_PARAM_CONSTANT_TESTBONE].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
-
+	//íËêî: Canvas
+	_numParameters[ROOT_PARAM_CONSTANT_CANVAS].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
+	_numParameters[ROOT_PARAM_CONSTANT_CANVAS].DescriptorTable.NumDescriptorRanges = 1;
+	_numParameters[ROOT_PARAM_CONSTANT_CANVAS].DescriptorTable.pDescriptorRanges = &_rangeType[ROOT_PARAM_CONSTANT_CANVAS];
+	_numParameters[ROOT_PARAM_CONSTANT_CANVAS].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
 	//UAV: Test
 	_numParameters[ROOT_PARAM_UAV_TEST].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
 	_numParameters[ROOT_PARAM_UAV_TEST].DescriptorTable.NumDescriptorRanges = 1;
@@ -223,12 +237,18 @@ void RootSignatureManager::InitStaticRengeType() {
 	_rangeType[ROOT_PARAM_TEXTURE_PP_COLOR].BaseShaderRegister = 8;
 	_rangeType[ROOT_PARAM_TEXTURE_PP_COLOR].RegisterSpace = 0;
 	_rangeType[ROOT_PARAM_TEXTURE_PP_COLOR].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
+	//Canvas : color
+	_rangeType[ROOT_PARAM_TEXTURE_CANVAS_COLOR].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
+	_rangeType[ROOT_PARAM_TEXTURE_CANVAS_COLOR].NumDescriptors = 1;
+	_rangeType[ROOT_PARAM_TEXTURE_CANVAS_COLOR].BaseShaderRegister = 9;
+	_rangeType[ROOT_PARAM_TEXTURE_CANVAS_COLOR].RegisterSpace = 0;
+	_rangeType[ROOT_PARAM_TEXTURE_CANVAS_COLOR].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
 
 
 	//UAVÅFTest
 	_rangeType[ROOT_PARAM_TEXTURE_UAV_TEST].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
 	_rangeType[ROOT_PARAM_TEXTURE_UAV_TEST].NumDescriptors = 1;
-	_rangeType[ROOT_PARAM_TEXTURE_UAV_TEST].BaseShaderRegister = 9;
+	_rangeType[ROOT_PARAM_TEXTURE_UAV_TEST].BaseShaderRegister = 10;
 	_rangeType[ROOT_PARAM_TEXTURE_UAV_TEST].RegisterSpace = 0;
 	_rangeType[ROOT_PARAM_TEXTURE_UAV_TEST].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
 
@@ -266,6 +286,13 @@ void RootSignatureManager::InitStaticRengeType() {
 	_rangeType[ROOT_PARAM_CONSTANT_TESTBONE].BaseShaderRegister = 4;
 	_rangeType[ROOT_PARAM_CONSTANT_TESTBONE].RegisterSpace = 0;
 	_rangeType[ROOT_PARAM_CONSTANT_TESTBONE].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
+	//íËêî: Canvas
+	_rangeType[ROOT_PARAM_CONSTANT_CANVAS].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_CBV;
+	_rangeType[ROOT_PARAM_CONSTANT_CANVAS].NumDescriptors = 1;
+	_rangeType[ROOT_PARAM_CONSTANT_CANVAS].BaseShaderRegister = 5;
+	_rangeType[ROOT_PARAM_CONSTANT_CANVAS].RegisterSpace = 0;
+	_rangeType[ROOT_PARAM_CONSTANT_CANVAS].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
+
 	//UAV: Test
 	_rangeType[ROOT_PARAM_UAV_TEST].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_UAV;
 	_rangeType[ROOT_PARAM_UAV_TEST].NumDescriptors = 1;

@@ -248,7 +248,7 @@ void FBXLoader::LoadVertexData(std::shared_ptr<D3D12DeviceManager>& device, std:
 }
 void FBXLoader::LoadTexture(const std::string& filepath, std::shared_ptr<D3D12DeviceManager>& device,std::shared_ptr<ComandManager>& comand,std::shared_ptr<FenceManager>& fence,std::shared_ptr<RootSignatureManager>& rootsignature, std::vector<std::shared_ptr<TextureManager>>& texms) {
 	std::shared_ptr<TextureManager> texmanager(new TextureManager());
-	texmanager->WICLoadTexture(device,comand, fence, filepath);
+	texmanager->WICLoadTexture(device,comand, filepath);
 	texms.push_back(texmanager);
 }
 const std::string FBXLoader::TexturePath(const std::string& filepath) {

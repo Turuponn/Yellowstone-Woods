@@ -1,37 +1,42 @@
 #include "GameEngine.h"
 #include <d3d12.h>
-#include "Graphics\Graphics.h"
-#include "DirectXManagers\Fence\FenceManager.h"
-#include "DirectXManagers\comand\ComandManager.h"
-#include "DirectXManagers\Device\D3D12DeviceManager.h"
+#include "DirectXManagers/Fence/FenceManager.h"
+#include "DirectXManagers/comand/ComandManager.h"
+#include "DirectXManagers/Device/D3D12DeviceManager.h"
+#include "DirectXManagers/DirectInput/DirectInputManager.h"
+#include "DirectXManagers/Texture/TextureManager.h"
+#include "DirectXManagers/Light/DirectionalLight/DirectionalLightManager.h"
+#include "DirectXManagers/rootsignature/RootSignatureManager.h"
+#include "DirectXManagers/DxGI\DxGIManager.h"
+#include "DirectXManagers/D2D\D2DManager.h"
+#include "DirectXManagers/DX11on12/D3D11On12DeviceManager.h"
+#include "DirectXManagers/swapchain/SwapChainManager.h"
+#include "DirectXManagers/FBX/FBXManager.h"
+#include "DirectXManagers/GbufferRendering/GbufferRenderManager.h"
+#include "DirectXManagers/RenderTarget/RenderTargetManager.h"
+
+#include "Graphics/Graphics.h"
 #include "constance.h"
 #include "WindowInit.h"
-#include "DirectXManagers\DirectInput\DirectInputManager.h"
-#include "DirectXManagers\Texture\TextureManager.h"
-#include "DirectXManagers\Light\DirectionalLight\DirectionalLightManager.h"
-#include "DirectXManagers\rootsignature\RootSignatureManager.h"
-#include "DirectXManagers\DxGI\DxGIManager.h"
-#include "Camera\Camera.h"
-#include "DirectXManagers\FBX\FBXManager.h"
-#include "DepthRender\DepthRenderManager.h"
+#include "Camera/Camera.h"
+#include "DepthRender/DepthRenderManager.h"
 #include <dxgidebug.h>//âï˙ñYÇÍÉåÉ|Å[Égóp
 #include <wrl.h>//COM
 #include <dxgi1_4.h>
 #include <tchar.h>
-#include "Library\DirectX12Create\Rand.h"
-#include "CubeMap\CubeMapManager.h"
+#include "Library/DirectX12Create/Rand.h"
+#include "CubeMap/CubeMapManager.h"
 #include "FowardLayer/FowardLayerManager.h"
-#include "DirectXManagers\GbufferRendering\GbufferRenderManager.h"
-#include "WhiteTexture\WhiteTextureManager.h"
+#include "WhiteTexture/WhiteTextureManager.h"
 #include "DeferredShading/DeferredShading.h"
 #include "PostProsess/PostProsessManager.h"
-#include "GPGPUManager\GPGPUManager.h"
+#include "GPGPUManager/GPGPUManager.h"
+#include "UI/RECT/RECTUI.h"
 //#debug
-#include "imguiManager\ImguiManager.h"
+#include "imguiManager/ImguiManager.h"
 
 
 
-#include "DirectXManagers/RenderTarget/RenderTargetManager.h"
 
 
 using namespace Microsoft::WRL;
@@ -71,6 +76,8 @@ void GameEngine::Initialize(WindowInit& windowinstance) {
 	_graphics = g;
 	std::shared_ptr<DxGIManager> dxgi(new DxGIManager());
 	_dxgimanager = dxgi;
+	std::shared_ptr<SwapChainManager> sc(new SwapChainManager());
+	_sc = sc;
 	std::shared_ptr<Rand> randpacage(new Rand());
 	_randpacage = randpacage;
 	std::shared_ptr<GbufferRenderManager> dr(new GbufferRenderManager());
@@ -83,23 +90,42 @@ void GameEngine::Initialize(WindowInit& windowinstance) {
 	_ds = ds;
 	std::shared_ptr<PostProsessManager> pp(new PostProsessManager());
 	_pp = pp;
-
+	//dxgi
 	_dxgimanager->CreateDxGiFactory();
+	//input
 	InputInit(windowinstance);
+	//d3d12device
 	_device->CreateD3DDevice(_dxgimanager);
-	_comand->Initialize(_device);
+	//comand1
+	_comand->CreateComandQueue(_device);
+	//swapchain
+	_sc->Initialize(_device, _comand, dxgi, windowinstance.GetWindowHwnd());
+	//comand2
+	_comand->CreateComandAllocators(_device, _sc);
+	//comand3
+	_comand->CreateComandList(_device,_sc);
+	//fence
 	_fencemanager->Initialize(_device);
-	_graphics->Initialize(_comand, _device, _dxgimanager, windowinstance.GetWindowHwnd());
-	DepthRenderInit();
+	//rtv
+	_graphics->Initialize(_comand, _device, _dxgimanager, _sc);
+
+	
+	//depth
+	//DepthRenderInit();
+	//imgui
 	imgui(windowinstance);
+	//layersystem
 	_f_ayer->CreateLayer(_device, _graphics->GetRootSignature());
+	//g-buffer
 	_drM->CreateGbuffer(_device,_comand,_graphics->GetRootSignature());
+	//whitetexture
 	_whiteTexM->Initialize(_device, _comand);
+	//pass
 	_ds->Initialize(_device, _comand, _graphics->GetRootSignature());
+	//pass
 	_pp->Initialize(_device, _comand, _graphics->GetRootSignature());
-
-
-
+	
+	
 }
 #pragma region DepthRender
 void GameEngine::DepthRenderInit() {
@@ -120,7 +146,7 @@ void GameEngine::Run() {
 	InputRun();
 }
 void GameEngine::Render() {
-	_graphics->Updata(_comand);
+	_graphics->RTVSwapChainUpdate(_device,_comand,_sc);
 }
 #pragma region ì¸óÕån
 void GameEngine::InputRun() {
@@ -136,21 +162,24 @@ const int GameEngine::CheckHitKey(const int keycode) {
 }
 #pragma endregion
 void GameEngine::ScreenFilip() {
-	_graphics->GetRTV()->PostRTV(_comand);
-	_graphics->ScreenFlip(_comand,_fencemanager);
+	_graphics->PostRTV(_comand,_sc);		
+	_graphics->ScreenFlip(_comand, _fencemanager, _sc);
+
+	//SwapChainBuffer UI Test
+	//_graphics->D2DFlip(_comand, _fencemanager, _sc);
 }
 #pragma region 
 const int GameEngine::LoadImagehandle(const std::string& filepath) {
 	std::shared_ptr<TextureManager> tex(new TextureManager());
 	int imagehandle = _randpacage->Rand_mt();
-	tex->WICLoadTexture(_device,_comand, _fencemanager, filepath);
+	tex->WICLoadTexture(_device,_comand, filepath);
 	_imagedatas.insert(std::make_pair(imagehandle, tex));
 	return imagehandle;
 }
 const int GameEngine::LoadBumpImagehandle(const std::string& filepath) {
 	std::shared_ptr<TextureManager> tex(new TextureManager());
 	int imagehandle = _randpacage->Rand_mt();
-	tex->WICLoadTexture(_device, _comand, _fencemanager, filepath);
+	tex->WICLoadTexture(_device, _comand, filepath);
 	_imagedatas.insert(std::make_pair(imagehandle, tex));
 	return imagehandle;
 }
@@ -343,7 +372,7 @@ int GameEngine::GetAnimFrameEndPos(const int handle, const std::string& animname
 #pragma region CubeMap
 const int GameEngine::LoadCubeMap(const std::string& texfilepath,const std::string& fbxfilepath) {
 	std::shared_ptr<CubeMapManager> cbmap(new CubeMapManager());
-	cbmap->LoadCubeMap(_device, _comand, _fencemanager, _graphics->GetRootSignature(), texfilepath);
+	cbmap->LoadCubeMap(_device, _comand, texfilepath);
 	cbmap->CreateFBXMesh(_device,_comand,_graphics->GetRootSignature(),_fencemanager, fbxfilepath);
 	int handle = _randpacage->Rand_mt();
 	_cubemap.insert(std::make_pair(handle, cbmap));
@@ -412,7 +441,7 @@ void GameEngine::imguiPost() {
 #pragma endregion
 #pragma region DR
 void GameEngine::DR_Pre() {
-	_drM->PreRender(_device,_comand,_graphics->GetRTV(),_graphics->GetDepth());
+	_drM->PreRender(_device,_comand,_graphics,_sc);
 }
 void GameEngine::DR_Post() {
 	_drM->PostRender(_comand, _fencemanager);
@@ -434,7 +463,7 @@ void GameEngine::DrawScreen(const int attachcamerahandle) {
 void GameEngine::PreDeferredShadingRender(const int attachcamerahandle) {
 	auto cam = _cameras.at(attachcamerahandle);
 	if (cam != nullptr) {
-		_ds->PreRender(_device, _comand, _graphics->GetRTV(), _graphics->GetDepth(),cam,_fencemanager);
+		_ds->PreRender(_device, _comand, _graphics,_sc,cam,_fencemanager);
 	}
 	else {
 		//Not Display
@@ -450,7 +479,7 @@ void GameEngine::PostDeferredShadingRender() {
 void GameEngine::PrePostProsessRender(const int attachcamerahandle) {
 	auto cam = _cameras.at(attachcamerahandle);
 	if (cam != nullptr) {
-		_pp->PreRender(_device, _comand, _graphics->GetRTV(), _graphics->GetDepth(), cam, _fencemanager);
+		_pp->PreRender(_device, _comand, _graphics,_sc, cam, _fencemanager);
 	}
 	else {
 		//Not Display
@@ -461,4 +490,46 @@ void GameEngine::PrePostProsessRender(const int attachcamerahandle) {
 void GameEngine::PostPostProsessRender() {
 	_pp->PostRender(_comand, _fencemanager);
 }
+#pragma endregion
+float GameEngine::GetRand_mt() {
+	return _randpacage->Rand_mt();
+}
+#pragma region UI
+const int GameEngine::CreateRECTUIHandle(const std::string& texfilepath) {
+	std::shared_ptr<RECTUI> ui(new RECTUI());
+	ui->CreateUIRect(_device,_comand,_graphics->GetRootSignature(), texfilepath);
+	int handle = GetRand_mt();
+	_uis.insert(std::make_pair(handle, ui));
+	return handle;
+}
+void GameEngine::DrawRECTUI(const int uihandle,const int attachcamerahandle) {
+	auto cam = _cameras.at(attachcamerahandle);
+	if (cam != nullptr) {
+		auto ui = _uis.at(uihandle);
+		if (ui != nullptr) {
+			ui->DrawRect(_comand, cam,_whiteTexM);
+		}
+		else {
+			//Not ui
+			throw(1);
+		}
+	}
+	else {
+		//Not Display
+		throw(1);
+	}
+}
+void GameEngine::SetPosUI(const int uihandle, const Vector3& newpos) {
+	auto ui = _uis.at(uihandle);
+	if (ui != nullptr) {
+		ui->SetPos(newpos);
+	}
+}
+void GameEngine::SetScaleUI(const int uihandle, const Vector3& newscale) {
+	auto ui = _uis.at(uihandle);
+	if (ui != nullptr) {
+		ui->SetScale(newscale);
+	}
+}
+
 #pragma endregion

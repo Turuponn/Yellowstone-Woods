@@ -20,4 +20,6 @@ private:
 	Vector3 _mappostion;
 	Vector3 _floorscale;
 	Vector3 _floorpostion;
+	Vector3 _floorrotate;
+
 };

@@ -28,4 +28,7 @@ private:
 	Vector3 _offsettreepos3;
 	Vector3 _offsettreepos4;
 	Vector3 _offsettreepos5;
+
+	float _moveoffset_y;//ç¿ïWÇ∏ÇÁÇµóp
+
 };

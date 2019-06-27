@@ -9,6 +9,7 @@
 #include "MapLevel/Map/Map.h"
 #include "Character/Wolf/Wolf.h"
 #include "Character/Cow/Cow.h"
+#include "Entity/Entity.h"
 
 using namespace std;
 using namespace DirectX;
@@ -25,13 +26,10 @@ int cubemaphandle = 0;
 
 
 
-
 Vector3 lightdir = {1.0f,1.0f,0.5f};
 
 Vector3 cubemapscale = {5000.0f,5000.0f,5000.0f};
 Vector3 cubemapPostion = {0,0,0};
-
-
 
 
 
@@ -62,9 +60,10 @@ GameScene::~GameScene() {
 
 float cam_sppeed = 0.05f;
 
-
-
 void GameScene::Initialize(WindowInit& windowinstance) {
+
+
+
 	std::shared_ptr<GameEngine> ge(new GameEngine());
 	_ge = ge;
 	_ge->Initialize(windowinstance);
@@ -97,6 +96,10 @@ void GameScene::Initialize(WindowInit& windowinstance) {
 	std::shared_ptr<Cow> cow(new Cow());
 	_cow = cow;
 	_cow->Initialize(_ge);
+	//コリジョン
+	std::shared_ptr<Entity> entity(new Entity());
+	_entity = entity;
+
 }
 
 //回転量
@@ -111,7 +114,7 @@ void GameScene::Updata() {
 #endif
 	
 	//カメラ
-	_ge->SetCameraRotate(camera1Handle, _player->GetPlayerPos().x, 10, _player->GetPlayerPos().z, c_rotate.x, c_rotate.y, c_rotate.z, camrenge);
+	_ge->SetCameraRotate(camera1Handle, _player->GetPostion().x, 10, _player->GetPostion().z, c_rotate.x, c_rotate.y, c_rotate.z, camrenge);
 	_ge->UpdateCamera(camera1Handle);
 
 
@@ -133,12 +136,10 @@ void GameScene::Updata() {
 
 	
 	_player->Update(_ge, camera1Handle);
-	_wolf->Update(_ge);
+	_wolf->Update(_ge, camera1Handle);
 	_cow->Update(_ge);
 	_tree->Update(_ge);
-	_player->SetPlayerPos(Vector3(_tree->GetPostion_Offset()[(int)moveindex].x, _tree->GetPostion_Offset()[(int)moveindex].y, _tree->GetPostion_Offset()[(int)moveindex].z));
 	_map->Update(_ge);
-
 
 
 	_ge->DR_Post();
@@ -167,6 +168,10 @@ void GameScene::Updata() {
 	_ge->imguiAddMeshFloat(camrenge, string("camrenge"), string("renge"), -50.0f, 50.0f);
 	//MoveTest
 	_ge->imguiAddMeshFloat(moveindex, string("moveindex"), string("idx"), 0.0f, 4.0f);
+
+	_ge->imguiAddMeshFloat(moveindex, string("moveindex"), string("idx"), 0.0f, 4.0f);
+
+	
 #endif
 	
 	
@@ -183,6 +188,32 @@ void GameScene::Updata() {
 	if (_ge->CheckHitKey(DIK_LEFT) == 1) {
 		c_rotate.y += cam_sppeed;
 	}
+
+
+	//Player
+	//_player->SetPostion((Vector3(_tree->GetPostion_Offset()[(int)moveindex].x, _tree->GetPostion_Offset()[(int)moveindex].y, _tree->GetPostion_Offset()[(int)moveindex].z)));
+	//移動し、もしも接地ポイントに近くなったら、接地可能　とし、所定行動開始
+	for (auto t_gp : _tree->GetPostion_Offset()) {
+		auto dis = _entity->Distance(_player->GetPostion(), t_gp);//距離
+		//接地可能かどうか
+		if (dis < 10) {
+			printf("接地可能\n");
+			//接地ボタンを押したら
+			//接地プロセスへ
+		}
+	}
+
+
+	//Wolf
+	//発見したらIdleからWorkモーションへ
+	//近くなったらWolf側のアニメーションを切り替える
+	_wolf->PlayWorkMotion();
+	auto dis = _entity->Distance(_wolf->GetPostion(), _cow->GetPostion());
+	if (dis < 13) {
+		_wolf->PlayEatMotion();
+	}
+	_wolf->MoveApproach(_ge,_cow->GetPostion());
+	
 #ifdef _DEBUG
 	_ge->imguiPost();
 #endif

@@ -22,7 +22,7 @@ class FenceManager;
 class ComandManager;
 class WindowInit;
 class Graphics;
-
+class SwapChainManager;
 
 class TextureManager;
 class DirectInputManager;
@@ -45,11 +45,14 @@ class WhiteTextureManager;
 class FowardLayerManager;
 class GPGPUManager;//Test
 class PostProsessManager;
+class D3D11On12DeviceManager;
 
 class GltfManager;
+class D2DManager;
 
 
 class DeferredShading;
+class RECTUI;
 
 class GameEngine{
 private:
@@ -62,7 +65,6 @@ public:
 	GameEngine();
 	virtual ~GameEngine();
 	void Initialize(WindowInit& windowinstance);
-	//画像=====================
 	/// <summary>
 	/// 画像ロード
 	/// </summary>
@@ -80,7 +82,6 @@ public:
 	/// </summary>
 	/// <param name="handle"></param>
 	void DrawImage(const int handle);
-	//カメラ=====================
 	/// <summary>
 	/// カメラ作成
 	/// </summary>
@@ -91,21 +92,18 @@ public:
 	/// </summary>
 	/// <param name="handle"> カメラハンドルを入れる </param>
 	void UpdateCamera(const int handle);
-	//ゲームループ===============
 	//ゲームループ
 	void Run();
 	//レンダリング
 	void Render();
 	//バックバッファに切り替え
 	void ScreenFilip();
-	//入力系================
 	/// <summary>
 	/// キー入力に対応するフラグを返します
 	/// </summary>
 	/// <param name="keycode">　keycode DIK_〇〇　というキーに対応した定数を入れる</param>
 	/// <returns>押された: 1 押されていない : 0</returns>
 	const int CheckHitKey(const int keycode);
-	//平行光源ライト===============
 	//平行光源ライトを更新する
 	void DirectionallightUpdate(const int handle);
 	//平行光源初期化
@@ -115,7 +113,12 @@ public:
 	void DirectionallightPos(const int handle, const Vector3& lightdir);
 	//平行光源ライトの強さ
 	void DirectionallightIntensity(const int handle,const float lightintensity);
-	//FBX=====================
+	/// <summary>
+	/// FBXをロードします
+	/// </summary>
+	/// <param name="filepath"></param>
+	/// <param name="animationF"></param>
+	/// <returns></returns>
 	const int LoadFBXModelDR(const std::string& filepath,bool animationF);
 	/// <summary>
 	/// モデルを描画します
@@ -180,13 +183,18 @@ public:
 	/// <param name="handle"></param>
 	/// <returns>最大フレーム数</returns>
 	int GetAnimFrameEndPos(const int handle,const std::string& animname);
-	//CubeMap================
+	/// <summary>
+	/// CubeMapを作成します
+	/// </summary>
+	/// <param name="texfilepath"></param>
+	/// <param name="fbxfilepath"></param>
+	/// <returns></returns>
 	const int LoadCubeMap(const std::string& texfilepath, const std::string& fbxfilepath);
 	void PreCubeMap(const int handle);
 	void SetCubeMapScaleQuaternion(const int handle, const Vector3& newscale);
 	void SetCubeMapPostionQuaternion(const int handle, const Vector3& newpos);
 	void SetCubeMapRotateQuaternion(const int handle, const Vector3& newaxis, float angle);
-	//ShadowMap==============
+	//TODO: ShadowMap
 	void DepthRenderInit();
 	void DepthRenderPre();
 	void DepthRenderPost();
@@ -234,7 +242,12 @@ public:
 	/// スクリーンの描画を行います
 	/// </summary>
 	/// <param name="attachcamerahandle"> アタッチするカメラ</param>
-	void DrawScreen(int attachcamerahandle);
+	void DrawScreen(const int attachcamerahandle);
+	/// <summary>
+	/// メルセンヌツイスタを使って乱数を出力します
+	/// </summary>
+	/// <returns>seedを無視した乱数を返します</returns>
+	float GetRand_mt();
 	//#debug
 	void imgui(WindowInit& windowinfo);
 	void Drawimgui();
@@ -246,6 +259,31 @@ public:
 	void imguiAddMeshFloat(float& newparam, std::string& text, std::string& label, float maxsize, float minsize);
 	void imguiPre();
 	void imguiPost();
+	/// <summary>
+	/// UIをキャンバスに登録します：矩形
+	/// </summary>
+	/// <param name="texfilepath"> テクスチャのパスを入れる　ない場合 ""して 空テクスチャを指定する</param>
+	/// <returns></returns>
+	const int CreateRECTUIHandle(const std::string& texfilepath);
+	/// <summary>
+	/// UIを描画します :　矩形
+	/// </summary>
+	/// <param name="handle"></param>
+	void DrawRECTUI(const int uihandle, const int attachcamerahandle);
+	/// <summary>
+	/// UI用新しい座標を更新します
+	/// </summary>
+	/// <param name="uihandle"></param>
+	/// <param name="newpos"></param>
+	void SetPosUI(const int uihandle,const Vector3& newpos);
+	/// <summary>
+	/// UI用新しい拡縮率を更新します
+	/// </summary>
+	/// <param name="uihandle"></param>
+	/// <param name="newscale"></param>
+	void SetScaleUI(const int uihandle, const Vector3& newscale);
+
+
 private:
 	std::shared_ptr<Graphics> _graphics;
 	std::shared_ptr<D3D12DeviceManager> _device;
@@ -261,6 +299,7 @@ private:
 	std::map<const int, std::shared_ptr<FBXManager>> _fbxs;
 	std::map<const int, std::shared_ptr<GltfManager>> _gltfs;
 	std::map<const int, std::shared_ptr<CubeMapManager>> _cubemap;
+	std::map<const int, std::shared_ptr<RECTUI>> _uis;
 	std::shared_ptr<DepthRenderManager>  _dmanager;
 	std::shared_ptr<GbufferRenderManager> _drM;
 	std::shared_ptr<WhiteTextureManager> _whiteTexM;
@@ -268,4 +307,5 @@ private:
 	std::shared_ptr<GPGPUManager> _testgpgpum;
 	std::shared_ptr<ImguiManager> _imgui;
 	std::shared_ptr<DeferredShading> _ds;
+	std::shared_ptr<SwapChainManager> _sc;
 };

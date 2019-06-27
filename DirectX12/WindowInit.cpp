@@ -4,7 +4,7 @@
 #include "imgui.h"
 #include "imguiManager\imgui\imgui_impl_win32.h"
 #include "imguiManager\imgui\imgui_impl_dx12.h"
-
+#include <d2d1.h>
 
 WindowInit* WindowInit::mInstance = 0;
 
@@ -100,9 +100,14 @@ void WindowInit::WindowInitialize() {
 		nullptr 
 	);
 
+	//TODO:　imgui resize UI TestsFunc
 	WindowInit::USE().SetimGuiResetF(false);
 	WindowInit::USE().SetSwapChainResetF(false);
 	WindowInit::USE().SetRtvResetF(false);
+
+
+
+
 }
 void WindowInit::destroy() {
 	SAFE_DELETE(mInstance)
@@ -147,7 +152,6 @@ LRESULT WindowProcedure(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam) {
 	case WM_DESTROY://終了リクエスト //Window閉じるリクエストがきたら
 		PostQuitMessage(0);//OSに対してアプリ終了を伝える
 		return 0;
-		break;
 	case WM_CLOSE://Alt+F4対応
 				  if (MessageBox(hwnd, _T("Really quit?"), _T("game"), MB_OKCANCEL) == IDOK)
 				  {
@@ -156,7 +160,7 @@ LRESULT WindowProcedure(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam) {
 				  else {
 					  return 0;
 				  }
-				  // Else: ユーザーがキャンセルし、何もしない
+		// Else: ユーザーがキャンセルし、何もしない
 		DestroyWindow(hwnd);
 		return 0;
 	case WM_SIZE:
@@ -174,7 +178,8 @@ LRESULT WindowProcedure(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam) {
 			WindowInit::USE().SetRtvResetF(true);
 		}
 		return 0;
-
+	case WM_PAINT:
+		
 		break;
 
 	}

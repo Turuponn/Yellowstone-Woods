@@ -2,55 +2,71 @@
 
 #include <memory>
 #include <wrl.h>
+#include <vector>
 
-class D3D12DeviceManager;
+
+enum D3D_PRIMITIVE_TOPOLOGY;
+enum D3D12_RESOURCE_STATES;
+
+struct ID3D12DescriptorHeap;
 struct ID3D12CommandAllocator;
 struct ID3D12GraphicsCommandList;
 struct ID3D12CommandQueue;
-class ComandCreate;
-class FenceManager;
-class PipelineStateManager;
-class RootSignatureManager;
 struct D3D12_VIEWPORT;
-
 struct CD3DX12_CPU_DESCRIPTOR_HANDLE;
-class DepthManager;
-class ResourceBarrier;
-enum D3D12_RESOURCE_STATES;
 struct ID3D12Resource;
-
+struct tagRECT;
 struct ID3D10Blob;
 typedef ID3D10Blob ID3DBlob;
 
-struct tagRECT;
 
 class VertexBufferManager;
 class IndexBufferManager;
 class ConstantManager;
 class TextureManager;
-enum D3D_PRIMITIVE_TOPOLOGY;
-
-struct ID3D12DescriptorHeap;
+class SwapChainManager;
+class DepthManager;
+class ResourceBarrier;
+class D3D12DeviceManager;
+class ComandCreate;
+class FenceManager;
+class PipelineStateManager;
+class RootSignatureManager;
 
 class ComandManager{
-protected:
-	
+private:
+	void Initialize();
 public:
 	ComandManager();
 	virtual ~ComandManager();
-	void Initialize(std::shared_ptr<D3D12DeviceManager>& device);
+	/// <summary>
+	/// コマンドキューを作成します
+	/// </summary>
+	/// <param name="device"></param>
+	void CreateComandQueue(std::shared_ptr<D3D12DeviceManager>& device);
+	/// <summary>
+	/// コマンドリストを作成します
+	/// </summary>
+	/// <param name="device"></param>
+	void CreateComandList(std::shared_ptr<D3D12DeviceManager>& device, std::shared_ptr<SwapChainManager>& swapchain);
+	/// <summary>
+	/// コマンドアロケータをフレームバッファ総数分作成します
+	/// </summary>
+	/// <param name="device"></param>
+	/// <param name="swapchain"></param>
+	void CreateComandAllocators(std::shared_ptr<D3D12DeviceManager>& device, std::shared_ptr<SwapChainManager>& swapchain);
 	// バックバッファ描画完了までポーリングで待機する
 	void ComandListWaitPorlling(std::shared_ptr<FenceManager>& fence);
 	//コマンドをすべて閉じる
 	void ComandClose();
 	//ヒープに溜まっているコマンドをすべてリセットする
-	void ComandReset();
+	void ComandReset(std::shared_ptr<SwapChainManager>& swapchain);
 	//パイプラインをセットする
 	void SetPipeline(std::shared_ptr<PipelineStateManager>& pipelinestate);
 	//パイプラインをリセットする
-	void ReSetPipeline(std::shared_ptr<PipelineStateManager>& pipelinestate);
+	void ReSetPipeline(std::shared_ptr<PipelineStateManager>& pipelinestate, std::shared_ptr<SwapChainManager>& swapchain);
 	//すべてのパイプラインをリセット
-	void ReSetPipeline();
+	void ReSetPipeline(std::shared_ptr<SwapChainManager>& swapchain);
 	//ルートシグネチャをアタッチする
 	void RootSignatureAttach(std::shared_ptr<RootSignatureManager>& rootsignature);
 	//ビューポートの指定
@@ -93,13 +109,13 @@ public:
 	//キューを返す
 	Microsoft::WRL::ComPtr<ID3D12CommandQueue>& GetComandQueue();
 	//アロケータを返す
-	Microsoft::WRL::ComPtr<ID3D12CommandAllocator>& GetComandAllocator();
+	std::vector<Microsoft::WRL::ComPtr<ID3D12CommandAllocator>>& GetComandAllocators();
 	//リストを返す
 	Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList>& GetGraphicsCommandList();
 private:
 	std::shared_ptr<ComandCreate> _comandcreate;
 	std::shared_ptr<ResourceBarrier> _rb;
-	Microsoft::WRL::ComPtr<ID3D12CommandAllocator> _comandAllocator;
+	std::vector<Microsoft::WRL::ComPtr<ID3D12CommandAllocator>> _comandAllocators;
 	Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> _comandList;
 	Microsoft::WRL::ComPtr<ID3D12CommandQueue> _comand_queue;
 };

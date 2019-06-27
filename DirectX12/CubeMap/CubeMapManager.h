@@ -24,8 +24,6 @@ struct Vector4;
 class D3D12DeviceManager;
 class TextureManager;
 class ComandManager;
-class FenceManager;
-class RootSignatureManager;
 class FBXManager;
 class VertexShadaManager;
 class PipelineStateManager;
@@ -35,7 +33,8 @@ struct ID3D12DescriptorHeap;
 struct ID3D12Resource;
 class DepthManager;
 class WhiteTextureManager;
-
+class RootSignatureManager;
+class FenceManager;
 
 class CubeMapManager {
 private:
@@ -48,8 +47,6 @@ public:
 	void LoadCubeMap(
 		std::shared_ptr<D3D12DeviceManager>& device,
 		std::shared_ptr<ComandManager>& comand,
-		std::shared_ptr<FenceManager>& fence,
-		std::shared_ptr<RootSignatureManager>& rootsignature,
 		const std::string& texfilepath
 	);
 

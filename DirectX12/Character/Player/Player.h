@@ -4,14 +4,31 @@
 
 
 
+class HPbar;
+
+
 
 
 
 class Player : public Character {
+private://player param
+	void HPDataUpdate();
+
+private://UI
+	void HPbarUpdateWorld();
+	void HPbarUpdate(std::shared_ptr<GameEngine>& ge, const int camerahandle);
+private://Input
+
 public:
 	Player();
 	virtual ~Player();
 	virtual void Initialize(std::shared_ptr<GameEngine>& ge);
+	virtual const Vector3& GetPostion();
+	virtual const Vector3& GetScale();
+	virtual void SetPostion(const Vector3& newpos);
+	virtual void SetScale(const Vector3& newscale);
+
+
 	/// <summary>
 	/// 更新
 	/// </summary>
@@ -23,18 +40,12 @@ public:
 	/// </summary>
 	/// <returns>true: 押されている false: 押されていない</returns>
 	bool PushKey();
-	/// <summary>
-	/// プレイヤーの中心座標を返します
-	/// </summary>
-	/// <returns></returns>
-	Vector3 GetPlayerPos();
-	/// <summary>
-	/// あたらしい中心座標を外部から入力します
-	/// </summary>
-	/// <param name="newp"></param>
-	void SetPlayerPos(const Vector3& newp);
+
 
 private:
+	std::shared_ptr<HPbar> _hpbar;
+	CharacterHPbar _hpparinfo;
+	CharacterHPbar _hpdefaultinfo;
 	Posture _pinit;//初期姿勢
 	Posture _pforward;//前
 	Posture _pback;//後ろ
@@ -46,7 +57,8 @@ private:
 	int _fbxhandle;//モデルハンドル
 	bool _pushF;//押された場合 true: false:
 	int _animframecount;
-	float _t;//球面線形補間の補間用変数
-	float _tspeed;//補間速度
+	float _tspeed;//球面線形補間媒介変数変位速度
 	float _movespeed;//キャラクター移動速度
+
+	float _hp;//プレイヤーhp
 };

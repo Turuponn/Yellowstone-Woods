@@ -13,7 +13,7 @@ struct AABB {
 class Collider {
 public:
 	Collider();
-	virtual ~Collider();
+	~Collider();
 
 public://AABB
 	//2点から軸並行バウンディングボックスによる衝突判定を行います

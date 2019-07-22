@@ -31,6 +31,9 @@ void Graphics::Initialize(std::shared_ptr<ComandManager>& comand, std::shared_pt
 void Graphics::RTVUpdata(std::shared_ptr<D3D12DeviceManager>& device,std::shared_ptr<ComandManager>& comand, std::shared_ptr<SwapChainManager>& swapchain, D3D12_CPU_DESCRIPTOR_HANDLE& startdescheap, const int heapnum) {
 	RenderTargetManager::UpdataRTVs(device,comand, _depth, swapchain, startdescheap,heapnum);
 }
+void Graphics::RTVClear(std::shared_ptr<ComandManager>& comand, D3D12_CPU_DESCRIPTOR_HANDLE& startdescheap) {
+	RenderTargetManager::ResetRTV(comand, startdescheap);
+}
 void Graphics::RTVSwapChainUpdate(std::shared_ptr<D3D12DeviceManager>& device,std::shared_ptr<ComandManager>& comand,std::shared_ptr<SwapChainManager>& swapchain) {
 	RenderTargetManager::UpdataRTV(swapchain,comand,_depth);
 }

@@ -1,30 +1,34 @@
 #pragma once
 
-#include "Geometori.h"
-#include <memory>
-#include <string>
+#include "GameUI/GameUI.h"
 
 class GameEngine;
 
-struct HPBARINFO {
-	Vector3 pos;
-	Vector3 scale;
+
+
+struct HPINFO {
+	int hp;//åªç›HP
+	int maxhp;//ç≈ëÂHP
 };
 
 
-class HPbar {
-private:
-	void UpdateInfo(std::shared_ptr<GameEngine>& ge);
+class HPbar : public GameUI{
 public:
 	HPbar();
 	~HPbar();
 
-	void CreateUI(std::shared_ptr<GameEngine>& ge,const std::string& filepath);
-	void DrawUI(std::shared_ptr<GameEngine>& ge, const int camerahandle);
-	void SetPos(const Vector3& newpos);
-	void SetScale(const Vector3& newscale);
+	void CreateUI(std::shared_ptr<GameEngine>& ge, const UIDATA& ddata,const std::string& filepath);
+	void DrawUI(std::shared_ptr<GameEngine>& ge, const std::string& cameraname);
+	void SetUIData(const UIDATA& uidata);
+	const UIDATA& GetUIData();
+
+
+	/// <summary>
+	/// HPÉoÅ[Ç∆HPó ÇäÑçáÇ≈ÉäÉìÉNÇ≥ÇπÇ‹Ç∑
+	/// </summary>
+	void ReduceUpdate(std::shared_ptr<GameEngine>& ge, const HPINFO& hinfo);
 
 private:
-	int _uihandle;
-	HPBARINFO _hpbarinfo;
+	UIDATA _defaultuidata;
+	UIDATA _uidata;
 };

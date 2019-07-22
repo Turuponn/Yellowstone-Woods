@@ -2,7 +2,6 @@
 
 
 #include <memory>
-#include <wrl.h>
 
 class D3D12DeviceManager;
 class ComandManager;
@@ -29,7 +28,7 @@ private:
 	void CreateUAVBuffer(std::shared_ptr<D3D12DeviceManager>& device);
 public:
 	GPGPUManager();
-	virtual ~GPGPUManager();
+	~GPGPUManager();
 
 	void Initialize(std::shared_ptr<D3D12DeviceManager>& device, std::shared_ptr<RootSignatureManager>& rootsignetur, std::shared_ptr<ComandManager>& comand);
 

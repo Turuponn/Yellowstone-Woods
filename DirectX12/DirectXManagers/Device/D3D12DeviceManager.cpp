@@ -6,10 +6,9 @@
 #include "DirectXManagers\DxGI\DxGIManager.h"
 
 D3D12DeviceManager::D3D12DeviceManager() {
-	_device = nullptr;
+
 }
 D3D12DeviceManager::~D3D12DeviceManager() {
-	SAFE_RELEASE(_device);
 }
 
 void D3D12DeviceManager::CreateD3DDevice(std::shared_ptr<DxGIManager>& dxgi) {
@@ -31,9 +30,12 @@ void D3D12DeviceManager::CreateD3DDevice(std::shared_ptr<DxGIManager>& dxgi) {
 	}
 
 	D3D12DeviceCreate::CreateDevice(&_device, adapter);
+	for (auto ptr : adapters) {
+		SAFE_RELEASE(ptr);
+	}
 	
 }
 
-ID3D12Device*& D3D12DeviceManager::GetDevice() {
+Microsoft::WRL::ComPtr<ID3D12Device>& D3D12DeviceManager::GetDevice() {
 	return _device;
 }

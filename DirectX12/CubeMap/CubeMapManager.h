@@ -4,7 +4,6 @@
 #include <memory>
 #include <string>
 #include <vector>
-#include <wrl.h>
 
 enum LOCKUPVECINDEX {
 	CBM_TOP,
@@ -40,7 +39,7 @@ class CubeMapManager {
 private:
 public:
 	CubeMapManager();
-	virtual ~CubeMapManager();
+	~CubeMapManager();
 
 
 
@@ -95,7 +94,6 @@ private:
 	std::shared_ptr<FBXManager> _fbx;
 	
 
-	Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> _texdescheap;
 
 
 };

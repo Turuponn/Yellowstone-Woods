@@ -18,7 +18,7 @@ class DxGIManager;
 class Graphics : public RenderTargetManager {
 public:
 	Graphics();
-	virtual ~Graphics();
+	~Graphics();
 	void Initialize(
 		std::shared_ptr<ComandManager>& comand,
 		std::shared_ptr<D3D12DeviceManager>& device,
@@ -45,7 +45,12 @@ public:
 		std::shared_ptr<ComandManager>& comand,
 		std::shared_ptr<SwapChainManager>& swapchain
 	);
-
+	/// <summary>
+	/// RTVをクリアカラーでリセットします
+	/// </summary>
+	/// <param name="comand"></param>
+	/// <param name="startdescheap"></param>
+	void RTVClear(std::shared_ptr<ComandManager>& comand, D3D12_CPU_DESCRIPTOR_HANDLE& startdescheap);
 	/// <summary>
 	/// リソースの状態遷移を行います : 最初
 	/// </summary>

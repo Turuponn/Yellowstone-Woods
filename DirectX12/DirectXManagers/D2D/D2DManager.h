@@ -36,7 +36,7 @@ private:
 	void CreateFrameResoce(std::shared_ptr<D3D12DeviceManager>& device, std::shared_ptr<D3D11On12DeviceManager>& device11on12,std::shared_ptr<SwapChainManager>& swapchain);
 public:
 	D2DManager();
-	virtual ~D2DManager();
+	~D2DManager();
 
 
 	void Initialize(

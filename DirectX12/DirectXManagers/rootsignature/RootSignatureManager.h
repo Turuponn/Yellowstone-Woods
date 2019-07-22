@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <memory>
+#include <wrl.h>
 
 class RootSignatureCreate;
 struct D3D12_STATIC_SAMPLER_DESC;
@@ -22,13 +23,13 @@ private:
 	void InitSmpler();
 public:
 	RootSignatureManager();
-	virtual ~RootSignatureManager();
+	~RootSignatureManager();
 	void Initialize(std::shared_ptr<D3D12DeviceManager>& device);
 	std::vector<D3D12_DESCRIPTOR_RANGE>& GetRengeType();
-	ID3D12RootSignature*& GetRootSignature();
+	Microsoft::WRL::ComPtr<ID3D12RootSignature>& GetRootSignature();
 private:
-	ID3D12RootSignature* _rootSignature;//シリアライズ済みのルートシグネチャ
-	ID3DBlob* _signatureblob;//シグネチャ
+	Microsoft::WRL::ComPtr<ID3D12RootSignature> _rootSignature;//シリアライズ済みのルートシグネチャ
+	Microsoft::WRL::ComPtr<ID3DBlob> _signatureblob;//シグネチャ
 	
 	std::vector<D3D12_STATIC_SAMPLER_DESC> _staticSamplers;//サンプラ入れ
 	std::vector<D3D12_ROOT_PARAMETER> _numParameters;//ルートパラメータ入れ

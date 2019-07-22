@@ -3,6 +3,11 @@
 using namespace DirectX;
 using namespace std;
 
+
+namespace {
+	vector<string> trees;
+}
+
 Tree::Tree() {
 	
 }
@@ -15,11 +20,15 @@ void Tree::Initialize(std::shared_ptr<GameEngine>& ge) {
 	_treehandles.resize(TREEMAX);
 	_treePostions.resize(TREEMAX);
 	_treeScale.resize(TREEMAX);
+	trees.resize(TREEMAX);
+
 	for (int i = 0; i < TREEMAX; i++) {
-		_treehandles[i] = ge->LoadFBXModelDR("resource/FBX/Tree.fbx", false);
+		auto str = std::to_string(i);
+		trees[i] = "tree"+ str;
+		ge->LoadFBXModelDR(trees[i],"resource/FBX/Tree.fbx", false);
 		_treeScale[i] = Vector3(1, 1, 1);
-		ge->SetFBXScaleQuaternion(_treehandles[i], _treeScale[i]);
-		ge->SetFBXRotateQuaternion(_treehandles[i], Vector3(1, 0, 0), XMConvertToRadians(-90));
+		ge->SetFBXScaleQuaternion(trees[i], _treeScale[i]);
+		ge->SetFBXRotateQuaternion(trees[i], Vector3(1, 0, 0), XMConvertToRadians(-90));
 		
 	}
 	_treePostions[0] = Vector3(40, 0, 0);
@@ -42,9 +51,9 @@ void Tree::Update(std::shared_ptr<GameEngine>& ge) {
 	
 	//–Ø‚ð”z’u‚·‚é
 	for (int i = 0; i < TREEMAX; i++) {
-		ge->SetFBXPostionQuaternion(_treehandles[i], Vector3(_treePostions[i].x+ _offsetpos.x, _treePostions[i].y+ _offsetpos.y, _treePostions[i].z+ _offsetpos.z));
-		ge->SetFBXScaleQuaternion(_treehandles[i], _treeScale[i]+ _offsetscale);
-		ge->DrawFBXModelDR(_treehandles[i]);
+		ge->SetFBXPostionQuaternion(trees[i], Vector3(_treePostions[i].x+ _offsetpos.x, _treePostions[i].y+ _offsetpos.y, _treePostions[i].z+ _offsetpos.z));
+		ge->SetFBXScaleQuaternion(trees[i], _treeScale[i]+ _offsetscale);
+		ge->DrawFBXModelDR(trees[i]);
 	}
 
 #ifdef _DEBUG

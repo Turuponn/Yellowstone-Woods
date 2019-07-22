@@ -26,7 +26,7 @@ struct CAMERA_MATRIX {
 class CameraManager {
 protected:
 	CameraManager();
-	virtual ~CameraManager();
+	~CameraManager();
 
 	/// <summary>
 	/// ƒJƒƒ‰—p’è”‚ğì¬‚·‚é

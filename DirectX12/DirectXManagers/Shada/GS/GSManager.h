@@ -12,7 +12,7 @@ class GSManager {
 public:
 
 	GSManager();
-	virtual ~GSManager();
+	~GSManager();
 
 
 	/// <summary>

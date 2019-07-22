@@ -14,8 +14,11 @@ struct WINDOWCREATE {
 	LRESULT (*messagefunc)(HWND, UINT , WPARAM , LPARAM);
 	WindowsNS::SCREENSIZE screensize;
 };
-
-class D2DManager;
+//メインループで使用する公開パラメータ
+struct GAMEMAIN {
+	float deltatime;//最後のフレームからの経過時間
+	float frameTime;
+};
 
 class WindowInit {
 private:
@@ -40,8 +43,9 @@ public:
 	void SetimGuiResetF(bool newf);
 	void SetSwapChainResetF(bool newf);
 	void SetRtvResetF(bool newf);
-
-	
+	void CreateFrameTimer();
+	void FixedFrameTime();
+	float GetFps();
 private:
 	static WindowInit* mInstance;
 	HINSTANCE hInst;
@@ -51,5 +55,7 @@ private:
 	bool _imguiResetF;
 	bool _swapchainResetF;
 	bool _rtvResetF;
-	
+	float _fps;
+	float _frameTime;
+
 };

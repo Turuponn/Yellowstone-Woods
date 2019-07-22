@@ -14,8 +14,6 @@ public:
 	Vector3 GetTreesPostion();
 
 private:
-	int _maphandle;
-	int _floorhandle;
 	Vector3 _mapscale;
 	Vector3 _mappostion;
 	Vector3 _floorscale;

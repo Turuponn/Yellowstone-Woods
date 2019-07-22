@@ -45,6 +45,23 @@ public:
 	/// </summary>
 	/// <param name="newscale"></param>
 	void SetScale(const Vector3& newscale);
+	/// <summary>
+	/// 回転原点
+	/// </summary>
+	/// <param name="newrotateorigin"></param>
+	void SetRotateOrigin(const Vector3& newrotateorigin);
+	/// <summary>
+	/// 色を指定します
+	/// </summary>
+	/// <param name="newcolor"></param>
+	void SetColor(const Vector4& newcolor);
+	/// <summary>
+	/// 回転率を更新します
+	/// </summary>
+	/// <param name="newrotate"></param>
+	void SetRotate(const float newrotate);
+	
+
 private:
 	int _handle;
 	std::shared_ptr<Canvas> _canvas;//UI用のキャンバス

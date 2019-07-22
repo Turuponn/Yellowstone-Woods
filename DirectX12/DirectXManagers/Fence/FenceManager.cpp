@@ -9,18 +9,16 @@ UINT64 fenceValue;
 
 FenceManager::FenceManager() {
 	fenceValue = 0;
-	_fence = nullptr;
 }
 FenceManager::~FenceManager() {
-	SAFE_RELEASE(_fence);
 }
 void FenceManager::Initialize(std::shared_ptr<D3D12DeviceManager>& device) {
 	std::shared_ptr<FenceCreate> f(new FenceCreate());
 	_fencecreate = f;
-	_fencecreate->CreateFance(device->GetDevice(), fenceValue, &_fence);
+	_fencecreate->CreateFance(device->GetDevice().Get(), fenceValue, &_fence);
 
 }
 
-ID3D12Fence*& FenceManager::GetFence() {
+Microsoft::WRL::ComPtr<ID3D12Fence>& FenceManager::GetFence() {
 	return _fence;
 }

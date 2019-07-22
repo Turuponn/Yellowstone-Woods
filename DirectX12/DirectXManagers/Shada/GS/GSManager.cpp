@@ -1,7 +1,7 @@
 #include "GSManager.h"
 #include "Library/DirectX12Create/ShadaCreate.h"
 #include <d3d12.h>
-
+#include "constance.h"
 
 GSManager::GSManager() {
 

@@ -21,16 +21,13 @@
 
 
 using namespace DirectX;
-using namespace Microsoft::WRL;
 
 
 
 TextureManager::TextureManager() {
 	CoInitializeEx(nullptr, COINIT_MULTITHREADED);//Windowsの機能を使うためにCOMの初期化が必要 ムービー再生でも使用する
-
 }
 TextureManager::~TextureManager() {
-
 }
 
 void TextureManager::WICLoadTexture(std::shared_ptr<D3D12DeviceManager>& device,std::shared_ptr<ComandManager>& comand, const std::string& filepath) {
@@ -39,7 +36,7 @@ void TextureManager::WICLoadTexture(std::shared_ptr<D3D12DeviceManager>& device,
 	std::shared_ptr<ResourceBarrier> r(new ResourceBarrier());
 
 	_texpath = filepath;
-	tex_create->CreateDescHeap(device->GetDevice(), 1, &_texdescheap);
+	tex_create->CreateDescHeap(device->GetDevice().Get(), 1, &_texdescheap);
 	TexMetadata metadata = {};
 	ScratchImage img;
 	std::wstring path(filepath.begin(), filepath.end());
@@ -49,10 +46,10 @@ void TextureManager::WICLoadTexture(std::shared_ptr<D3D12DeviceManager>& device,
 	}
 	
 
-	tex_create->CreateBuffer(device->GetDevice(), metadata.width, metadata.height, metadata.format, &_texturebuffer);
+	tex_create->CreateBuffer(device->GetDevice().Get(), metadata.width, metadata.height, metadata.format, &_texturebuffer);
 	tex_create->TextureBufferSubresource((int)metadata.width, (int)metadata.height, (char*)img.GetPixels(), _texturebuffer.Get());
 	tex_create->TextureShadaResoceView(
-		device->GetDevice(),
+		device->GetDevice().Get(),
 		_texturebuffer.Get(),
 		_texdescheap.Get(),
 		_texdescheap->GetCPUDescriptorHandleForHeapStart(),
@@ -121,17 +118,17 @@ void TextureManager::WICLoadTexture(std::shared_ptr<D3D12DeviceManager>& device,
 
 void TextureManager::SRVCreateHeap(std::shared_ptr<D3D12DeviceManager>& device) {
 	std::shared_ptr<TextureCreate> tex_create(new TextureCreate());
-	tex_create->CreateDescHeap(device->GetDevice(), 1, &_texdescheap);
+	tex_create->CreateDescHeap(device->GetDevice().Get(), 1, &_texdescheap);
 }
 void TextureManager::SRVCreateHeap(std::shared_ptr<D3D12DeviceManager>& device, const int descnum) {
 	std::shared_ptr<TextureCreate> tex_create(new TextureCreate());
-	tex_create->CreateDescHeap(device->GetDevice(), descnum, &_texdescheap);
+	tex_create->CreateDescHeap(device->GetDevice().Get(), descnum, &_texdescheap);
 }
-void TextureManager::SRVCreateView(std::shared_ptr<D3D12DeviceManager>& device, DXGI_FORMAT srvtexformat, Microsoft::WRL::ComPtr<ID3D12Resource>& buff) {
+void TextureManager::SRVCreateView(std::shared_ptr<D3D12DeviceManager>& device, DXGI_FORMAT srvtexformat,ID3D12Resource*& buff) {
 	std::shared_ptr<TextureCreate> tex_create(new TextureCreate());
 	tex_create->TextureShadaResoceView(
-		device->GetDevice(),
-		buff.Get(),
+		device->GetDevice().Get(),
+		buff,
 		_texdescheap.Get(),
 		_texdescheap->GetCPUDescriptorHandleForHeapStart(),
 		srvtexformat
@@ -140,7 +137,7 @@ void TextureManager::SRVCreateView(std::shared_ptr<D3D12DeviceManager>& device, 
 void TextureManager::SRVCreateView(std::shared_ptr<D3D12DeviceManager>& device, DXGI_FORMAT srvtexformat) {
 	std::shared_ptr<TextureCreate> tex_create(new TextureCreate());
 	tex_create->TextureShadaResoceView(
-		device->GetDevice(),
+		device->GetDevice().Get(),
 		_texturebuffer.Get(),
 		_texdescheap.Get(),
 		_texdescheap->GetCPUDescriptorHandleForHeapStart(),
@@ -149,14 +146,15 @@ void TextureManager::SRVCreateView(std::shared_ptr<D3D12DeviceManager>& device, 
 }
 void TextureManager::SRVBuffer(std::shared_ptr<D3D12DeviceManager>& device,void* pdata,const int size_x, const int size_y) {
 	std::shared_ptr<TextureCreate> tex_create(new TextureCreate());
-	tex_create->CreateBuffer(device->GetDevice(), size_x, size_y,DXGI_FORMAT_R8G8B8A8_UNORM, &_texturebuffer);
+	tex_create->CreateBuffer(device->GetDevice().Get(), size_x, size_y,DXGI_FORMAT_R8G8B8A8_UNORM, &_texturebuffer);
 	tex_create->TextureBufferSubresource(size_x, size_y, (char*)pdata, _texturebuffer.Get());
 }
 void TextureManager::DrawSrv(std::shared_ptr<ComandManager>& comand) {
-	comand->ComandSetDescriptorHeaps(1, _texdescheap.Get());
+	auto heap = _texdescheap.Get();
+	comand->ComandSetDescriptorHeaps(1, heap);
 }
-ID3D12DescriptorHeap* TextureManager::GetSrvHeap() {
-	return _texdescheap.Get();
+Microsoft::WRL::ComPtr<ID3D12DescriptorHeap>& TextureManager::GetSrvHeap() {
+	return _texdescheap;
 }
 void TextureManager::LoadDDSTexture(std::shared_ptr<D3D12DeviceManager>& device, std::shared_ptr<ComandManager>& comand, const std::string& texfilepath) {
 
@@ -179,7 +177,7 @@ void TextureManager::LoadDDSTexture(std::shared_ptr<D3D12DeviceManager>& device,
 	std::unique_ptr<uint8_t[]> ddsData;
 	std::vector<D3D12_SUBRESOURCE_DATA> subresouceData;
 	LoadDDSTextureFromFile(
-		device->GetDevice(),
+		device->GetDevice().Get(),
 		path.c_str(),
 		&_texturebuffer,
 		ddsData,
@@ -190,14 +188,14 @@ void TextureManager::LoadDDSTexture(std::shared_ptr<D3D12DeviceManager>& device,
 	const UINT64 uploadBufferSize = GetRequiredIntermediateSize(_texturebuffer.Get(), 0, subresoucesize);
 
 
-	auto desc = _texturebuffer.Get()->GetDesc();
+	auto desc = _texturebuffer->GetDesc();
 	result = device->GetDevice()->CreateCommittedResource(
 		&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD),
 		D3D12_HEAP_FLAG_NONE,
 		&CD3DX12_RESOURCE_DESC::Buffer(uploadBufferSize),
 		D3D12_RESOURCE_STATE_GENERIC_READ,
 		nullptr,
-		IID_PPV_ARGS(&textureUploadHeap));
+		IID_PPV_ARGS(&_textureUploadHeap));
 	if (result != S_OK) {
 		throw(1);
 	}
@@ -207,7 +205,7 @@ void TextureManager::LoadDDSTexture(std::shared_ptr<D3D12DeviceManager>& device,
 	UpdateSubresources(
 		comand->GetGraphicsCommandList().Get(),
 		_texturebuffer.Get(),
-		textureUploadHeap.Get(),
+		_textureUploadHeap.Get(),
 		0,
 		0,
 		subresoucesize,//11*6 = 66
@@ -235,7 +233,7 @@ void TextureManager::LoadTGATexture(std::shared_ptr<D3D12DeviceManager>& device,
 	std::shared_ptr<TGALoader> tga(new TGALoader());
 	std::shared_ptr<TextureCreate> tex_create(new TextureCreate());
 	std::shared_ptr<ResourceBarrier> r(new ResourceBarrier());
-	tex_create->CreateDescHeap(device->GetDevice(), 1, &_texdescheap);//1=rootsignaturemanager->GetRengeType()[ROOT_PARAM_TEXTURE].NumDescriptors
+	tex_create->CreateDescHeap(device->GetDevice().Get(), 1, &_texdescheap);//1=rootsignaturemanager->GetRengeType()[ROOT_PARAM_TEXTURE].NumDescriptors
 
 	TGAImageData* pixdata = nullptr; 
 	tga->LoadImageTGA(filepath, &pixdata);
@@ -251,11 +249,22 @@ void TextureManager::LoadTGATexture(std::shared_ptr<D3D12DeviceManager>& device,
 	default:
 		break;
 	}
-	tex_create->CreateBuffer(device->GetDevice(), (int)pixdata->header.imagewidth[0], (int)pixdata->header.imageheight[0], forms, &_texturebuffer);
-	tex_create->TextureBufferSubresource((int)pixdata->header.imagewidth[0], (int)pixdata->header.imageheight[0], (char*)&pixdata->pixdataList[0], _texturebuffer.Get());
+	tex_create->CreateBuffer(
+		device->GetDevice().Get(),
+		(int)pixdata->header.imagewidth[0],
+		(int)pixdata->header.imageheight[0],
+		forms,
+		&_texturebuffer
+	);
+	tex_create->TextureBufferSubresource(
+		(int)pixdata->header.imagewidth[0],
+		(int)pixdata->header.imageheight[0],
+		(char*)&pixdata->pixdataList[0],
+		_texturebuffer.Get()
+	);
 
 	tex_create->TextureShadaResoceView(
-		device->GetDevice(),
+		device->GetDevice().Get(),
 		_texturebuffer.Get(),
 		_texdescheap.Get(),
 		_texdescheap->GetCPUDescriptorHandleForHeapStart(),
@@ -266,8 +275,9 @@ void TextureManager::LoadTGATexture(std::shared_ptr<D3D12DeviceManager>& device,
 
 
 void TextureManager::DrawImage(std::shared_ptr<ComandManager>& comand,const int descnum, TEXTURE_REGISTER texture_register) {
-	comand->ComandSetDescriptorHeaps(descnum, _texdescheap.Get());
-	comand->ComandSetGraphicsRootDescriptorTable(texture_register, _texdescheap.Get());
+	auto heap = _texdescheap.Get();
+	comand->ComandSetDescriptorHeaps(descnum, heap);
+	comand->ComandSetGraphicsRootDescriptorTable(texture_register, heap);
 	
 }
 const std::string& TextureManager::GetTextureName() {

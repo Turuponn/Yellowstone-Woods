@@ -19,7 +19,7 @@ private:
 
 public:
 	DepthManager();
-	virtual ~DepthManager();
+	~DepthManager();
 	void Initialize(std::shared_ptr<D3D12DeviceManager>& device);
 	void CreateBuffer(std::shared_ptr<D3D12DeviceManager>& device, const int screensize_x, const int screensize_y);
 	void CreateHeap(std::shared_ptr<D3D12DeviceManager>& device);
@@ -30,4 +30,6 @@ private:
 	Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> _depthHeapDesc;
 	Microsoft::WRL::ComPtr<ID3D12Resource> _depthbuffer;
 };
+
+
 

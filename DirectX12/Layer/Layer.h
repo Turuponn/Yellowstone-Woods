@@ -3,7 +3,6 @@
 
 #include <memory>
 #include <string>
-#include <wrl.h>
 #include <vector>
 #include <tchar.h>
 #include "Geometori.h"

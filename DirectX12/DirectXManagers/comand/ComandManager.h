@@ -1,9 +1,8 @@
 #pragma once
 
 #include <memory>
-#include <wrl.h>
 #include <vector>
-
+#include <wrl.h>
 
 enum D3D_PRIMITIVE_TOPOLOGY;
 enum D3D12_RESOURCE_STATES;
@@ -38,7 +37,7 @@ private:
 	void Initialize();
 public:
 	ComandManager();
-	virtual ~ComandManager();
+	~ComandManager();
 	/// <summary>
 	/// コマンドキューを作成します
 	/// </summary>
@@ -74,13 +73,13 @@ public:
 	//シザー矩形(見える範囲の指定
 	void ComandRSSetScissorRects(const int scissorrectnum, tagRECT& scissorRect);
 	//描画対象の指定
-	void ComandOMSetRenderTargets(const int numrtv, Microsoft::WRL::ComPtr<ID3D12DescriptorHeap>& descheap, std::shared_ptr<DepthManager>& depth);
+	void ComandOMSetRenderTargets(const int numrtv, ID3D12DescriptorHeap*& descheap, std::shared_ptr<DepthManager>& depth);
 	//深度情報をクリア
 	void ComandClearDepthStencilView(std::shared_ptr<DepthManager>& depth);
 	//描画対象の色設定
 	void ComandClearRenderTargetView(CD3DX12_CPU_DESCRIPTOR_HANDLE& rtv, float* clearcolor);
 	//リソースの状態を設定する
-	void ComandRBarrier(D3D12_RESOURCE_STATES statebefore, D3D12_RESOURCE_STATES stateafter, ID3D12Resource* tergetresoce);
+	void ComandRBarrier(D3D12_RESOURCE_STATES statebefore, D3D12_RESOURCE_STATES stateafter, ID3D12Resource*& tergetresoce);
 	/// <summary>
 	/// リソースの状態を設定する : 配列版
 	/// </summary>
@@ -88,7 +87,7 @@ public:
 	/// <param name="statebefore"></param>
 	/// <param name="stateafter"></param>
 	/// <param name="tergetresoce"></param>
-	void ComandRBarrierArry(const int resocenum,D3D12_RESOURCE_STATES statebefore, D3D12_RESOURCE_STATES stateafter, ID3D12Resource* tergetresoce);
+	void ComandRBarrierArry(const int resocenum,D3D12_RESOURCE_STATES statebefore, D3D12_RESOURCE_STATES stateafter, ID3D12Resource*& tergetresoce);
 	//
 	void ComandIASetVertexBuffers(std::shared_ptr<VertexBufferManager>& vbm);
 	//トポロジ
@@ -100,22 +99,22 @@ public:
 	// インデックスづけされていない描画
 	void ComandDrawInstanced(const int vertexnum, const int instancenum);
 	//ヒープの設定
-	void ComandSetDescriptorHeaps(const int descheapnum, ID3D12DescriptorHeap*  heap);
+	void ComandSetDescriptorHeaps(const int descheapnum, ID3D12DescriptorHeap*&  heap);
 	//ルートシグネチャのスロットと定数を同期させる
-	void ComandSetGraphicsRootDescriptorTable(const int rootparamidx, ID3D12DescriptorHeap* heap);
+	void ComandSetGraphicsRootDescriptorTable(const int rootparamidx, ID3D12DescriptorHeap*& heap);
 	//コマンドリストにためておいたコマンドをすべて実行させる
 	void ComandExecuteCommandList();
 
 	//キューを返す
 	Microsoft::WRL::ComPtr<ID3D12CommandQueue>& GetComandQueue();
 	//アロケータを返す
-	std::vector<Microsoft::WRL::ComPtr<ID3D12CommandAllocator>>& GetComandAllocators();
+	std::vector< Microsoft::WRL::ComPtr<ID3D12CommandAllocator>>& GetComandAllocators();
 	//リストを返す
-	Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList>& GetGraphicsCommandList();
+	Microsoft::WRL::ComPtr <ID3D12GraphicsCommandList>& GetGraphicsCommandList();
 private:
 	std::shared_ptr<ComandCreate> _comandcreate;
 	std::shared_ptr<ResourceBarrier> _rb;
-	std::vector<Microsoft::WRL::ComPtr<ID3D12CommandAllocator>> _comandAllocators;
-	Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> _comandList;
-	Microsoft::WRL::ComPtr<ID3D12CommandQueue> _comand_queue;
+	std::vector< Microsoft::WRL::ComPtr<ID3D12CommandAllocator>> _comandAllocators;
+	Microsoft::WRL::ComPtr<ID3D12CommandQueue> _comandQueue;
+	Microsoft::WRL::ComPtr <ID3D12GraphicsCommandList> _comandList;
 };

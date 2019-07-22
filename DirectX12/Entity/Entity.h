@@ -6,7 +6,7 @@
 class Entity {
 public:
 	Entity();
-	virtual ~Entity();
+	~Entity();
 
 	/// <summary>
 	/// 2“_ŠÔ‚Ì‹——£‚ð•Ô‚·

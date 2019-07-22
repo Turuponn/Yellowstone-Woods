@@ -75,7 +75,7 @@ void GPGPUManager::Update(std::shared_ptr<ComandManager>& comand, std::shared_pt
 	//送る側　Note: 
 	//[送る側]が必要　UAVのパイプラインは、ほとんどの場合SRVやCBVを使用してグラフィクスパイプラインに語り掛けるが
 	//UAV単体でもなぜかできる CBV UAV SRV　を送る側に指定することが可能
-	auto uavheap = _csm->GetUAVHeap().Get();
+	auto uavheap = _csm->GetUAVHeap();
 	comand->GetGraphicsCommandList()->SetDescriptorHeaps(1, &uavheap);
 
 

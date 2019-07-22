@@ -41,7 +41,7 @@ void Layer::CreateShada(std::shared_ptr<D3D12DeviceManager>& device, std::shared
 	_pipe = pipe;
 	_vs->CreateVertexShada(shadalayer.VSFilepath, shadalayer.FancnameVS);
 	_ps->CreatePixelShada(shadalayer.PSFilepath, shadalayer.FancnamePS);
-	_pipe->CreatePiplineState(device, rootsignature, &shadalayer.inputLaout[0], shadalayer.inputLaout.size(), _vs, _ps);
+	_pipe->CreatePipelineState(device, rootsignature, &shadalayer.inputLaout[0], shadalayer.inputLaout.size(), _vs, _ps);
 
 }
 void Layer::CreateLayer(std::shared_ptr<D3D12DeviceManager>& device, std::shared_ptr<RootSignatureManager>& rootsignature, SHADA_LAYER& shadalayer) {
@@ -81,7 +81,7 @@ void Layer::Cbuffer(std::shared_ptr<ComandManager>& comand, std::shared_ptr<Came
 	auto invmat = Billbord(camera->GetCameraView());
 	_cbuffaddress->layer_rotate = invmat;
 	_cbuff->ConstantbufferUnMap();
-	auto heap = _cbuff->GetDescHeap().Get();
+	auto heap = _cbuff->GetDescHeap();//TODO:
 	comand->GetGraphicsCommandList()->SetDescriptorHeaps(1, &heap);
 	comand->GetGraphicsCommandList()->SetGraphicsRootDescriptorTable(ROOT_PARAM_CONSTANT_LAYER, heap->GetGPUDescriptorHandleForHeapStart());
 }

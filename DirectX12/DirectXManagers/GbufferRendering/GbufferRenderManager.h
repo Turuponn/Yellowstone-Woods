@@ -33,7 +33,7 @@ private:
 	void CreateGS();
 public:
 	GbufferRenderManager();
-	virtual ~GbufferRenderManager();
+	~GbufferRenderManager();
 
 	/// <summary>
 	/// オフスクリーンバッファを作成する
@@ -70,13 +70,13 @@ public:
 	/// <param name="comand"></param>
 	void SetDrawPipeline(std::shared_ptr<ComandManager>& comand);
 private:
+	Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> _rtvheap;
+	
 	std::vector<Microsoft::WRL::ComPtr<ID3D12Resource>> _rtvbuffer;
-    Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> _rtvheap;
 	std::vector<std::shared_ptr<TextureManager>> _texMs;
 	std::vector<DXGI_FORMAT> _rtvformats;
 
-
-
+	
 	std::shared_ptr<PipelineStateManager> _mrtPipeline;
 	std::shared_ptr<PipelineStateManager> _cmapP;
 	std::shared_ptr<VertexShadaManager> _vs;

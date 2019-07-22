@@ -8,8 +8,6 @@
 #include "DirectXManagers/Light/DirectionalLight/DirectionalLightManager.h"
 #include "DirectXManagers/rootsignature/RootSignatureManager.h"
 #include "DirectXManagers/DxGI\DxGIManager.h"
-#include "DirectXManagers/D2D\D2DManager.h"
-#include "DirectXManagers/DX11on12/D3D11On12DeviceManager.h"
 #include "DirectXManagers/swapchain/SwapChainManager.h"
 #include "DirectXManagers/FBX/FBXManager.h"
 #include "DirectXManagers/GbufferRendering/GbufferRenderManager.h"
@@ -32,11 +30,9 @@
 #include "PostProsess/PostProsessManager.h"
 #include "GPGPUManager/GPGPUManager.h"
 #include "UI/RECT/RECTUI.h"
+
 //#debug
 #include "imguiManager/ImguiManager.h"
-
-
-
 
 
 using namespace Microsoft::WRL;
@@ -44,22 +40,24 @@ using namespace std;
 using namespace DirectX;
 
 
+void EnableDebugLayer()
+{
+	ID3D12Debug* debugController;
+	HRESULT result = D3D12GetDebugInterface(IID_PPV_ARGS(&debugController));
+	if (SUCCEEDED(result))
+		debugController->EnableDebugLayer();
+	debugController->Release();
+
+}
+
 GameEngine::GameEngine() {
 	
 }
 GameEngine::~GameEngine() {
 
-	
 }
 void GameEngine::SetRootSignature() {
-	_comand->GetGraphicsCommandList()->SetGraphicsRootSignature(_graphics->GetRootSignature()->GetRootSignature());
-}
-void EnableDebugLayer()
-{
-	ComPtr<ID3D12Debug> debugController;
-	HRESULT result = D3D12GetDebugInterface(IID_PPV_ARGS(&debugController));
-	if (SUCCEEDED(result))
-		debugController->EnableDebugLayer();
+	_comand->GetGraphicsCommandList()->SetGraphicsRootSignature(_graphics->GetRootSignature()->GetRootSignature().Get());
 }
 void GameEngine::Initialize(WindowInit& windowinstance) {
 	//デバッグレイヤー有効
@@ -109,7 +107,7 @@ void GameEngine::Initialize(WindowInit& windowinstance) {
 	//rtv
 	_graphics->Initialize(_comand, _device, _dxgimanager, _sc);
 
-	
+	//
 	//depth
 	//DepthRenderInit();
 	//imgui
@@ -125,7 +123,13 @@ void GameEngine::Initialize(WindowInit& windowinstance) {
 	//pass
 	_pp->Initialize(_device, _comand, _graphics->GetRootSignature());
 	
-	
+	//メモリリークの詳細な型名を表示させる
+	ID3D12DebugDevice* debugInterface;
+	if (SUCCEEDED(_device->GetDevice()->QueryInterface(&debugInterface)))
+	{
+		debugInterface->ReportLiveDeviceObjects(D3D12_RLDO_DETAIL | D3D12_RLDO_IGNORE_INTERNAL);
+		debugInterface->Release();
+	}
 }
 #pragma region DepthRender
 void GameEngine::DepthRenderInit() {
@@ -145,9 +149,6 @@ void GameEngine::Run() {
 	SetRootSignature();
 	InputRun();
 }
-void GameEngine::Render() {
-	_graphics->RTVSwapChainUpdate(_device,_comand,_sc);
-}
 #pragma region 入力系
 void GameEngine::InputRun() {
 	_directinputmanager->InputUpdate();
@@ -156,6 +157,12 @@ void GameEngine::InputInit(WindowInit& windowinstance) {
 	std::shared_ptr<DirectInputManager> input(new DirectInputManager());
 	_directinputmanager = input;
 	_directinputmanager->Initialize(windowinstance);
+
+
+	//TODO:　Xinput
+	//std::shared_ptr<XInput> xinput(new XInput());
+	//_xinput = xinput;
+	//_xinput->Init();
 }
 const int GameEngine::CheckHitKey(const int keycode) {
 	return _directinputmanager->CheckHitKey(keycode);
@@ -218,49 +225,62 @@ void GameEngine::DirectionallightIntensity(const int handle,const float lightint
 }
 #pragma endregion
 #pragma region Camera
-const int GameEngine::CreateCameraHandle() {
+void GameEngine::CreateCamera(const std::string& cameraname) {
 	std::shared_ptr<Camera> cam(new Camera());
 	cam->CreateCamera(_device);
-	int handle = _randpacage->Rand_mt();
-	_cameras.insert(std::make_pair(handle, cam));
-	return handle;
+	_cameras.insert(std::make_pair(cameraname, cam));
 }
-void GameEngine::UpdateCamera(const int handle) {
-	SetRootSignature();
-	auto cam = _cameras.at(handle);
+void GameEngine::CreateCameraHandle(const std::string& cameraname) {
+	if (_cameras.size() > 0) {//既にカメラが存在する場合
+		auto cam = _cameras.at(cameraname);
+		if (cam != nullptr) {
+			//何もしない
+		}
+		else {//指定名が存在しない場合新規作成
+			CreateCamera(cameraname);
+		}
+	}
+	else {//ない場合新規作成
+		CreateCamera(cameraname);
+	}
+	
+}
+void GameEngine::UpdateCamera(const std::string& cameraname) {
+	//SetRootSignature();
+	auto cam = _cameras.at(cameraname);
 	if (cam != nullptr) {
 		cam->Update(_comand);
 	}
 }
-void GameEngine::SetCameraRotate(const int camerahandle, float x, float y, float z, float camx, float camy, float camz,float camerarenge) {
-	auto cam = _cameras.at(camerahandle);
+void GameEngine::SetCameraRotate(const std::string& cameraname,const Vector3& newpoint, const Vector3& newcamerarotate,const float camerarenge) {
+	auto cam = _cameras.at(cameraname);
 	if (cam != nullptr) {
-		cam->CameraRotate(x, y, z,camx,camy,camz, camerarenge);
+		cam->CameraRotate(newpoint.x, newpoint.y, newpoint.z, newcamerarotate.x, newcamerarotate.y, newcamerarotate.z, camerarenge);
 	}	
 }
-void GameEngine::SetCameraPosition(const int camerahandl,float x, float y, float z) {
-	auto cam = _cameras.at(camerahandl);
+void GameEngine::SetCameraPosition(const std::string& cameraname,const Vector3& pos) {
+	auto cam = _cameras.at(cameraname);
 	if (cam != nullptr) {
-		cam->SetCameraPostion(x,y,z);
+		cam->SetCameraPostion(pos.x, pos.y, pos.z);
 	}
 }
-Vector3 GameEngine::GetCameraPosition(const int camerahandl) {
-	auto cam = _cameras.at(camerahandl);
+Vector3 GameEngine::GetCameraPosition(const std::string& cameraname) {
+	auto cam = _cameras.at(cameraname);
 	if (cam != nullptr) {
 		return cam->GetCameraPosition();
 	}
 	return Vector3(0,0,0);
 }
-Vector3 GameEngine::GetCameraLookAt(const int camerahandl) {
-	auto cam = _cameras.at(camerahandl);
+Vector3 GameEngine::GetCameraLookAt(const std::string& cameraname) {
+	auto cam = _cameras.at(cameraname);
 	if (cam != nullptr) {
 		return cam->GetCameraLookAt();
 	}
 	return Vector3(0, 0, 0);
 }
-DirectX::XMMATRIX GameEngine::GetCameraViewMat(const int handle) {
+DirectX::XMMATRIX GameEngine::GetCameraViewMat(const std::string& cameraname) {
 	XMMATRIX mat = XMMatrixIdentity();
-	auto cam = _cameras.at(handle);
+	auto cam = _cameras.at(cameraname);
 	if (cam != nullptr) {
 		mat = cam->GetCameraView();
 		return mat;
@@ -269,137 +289,180 @@ DirectX::XMMATRIX GameEngine::GetCameraViewMat(const int handle) {
 }
 #pragma endregion
 #pragma region FBX
-const int GameEngine::LoadFBXModelDR(const std::string& filepath, bool animationF) {
+void GameEngine::CreateFBXModel(const std::string& modelname, const std::string& fbxfilepath, bool animationF) {
 	std::shared_ptr<FBXManager> fbx(new FBXManager());
-	fbx->LoadModelDR(FBX_DRAW(_device, _comand, _graphics->GetRootSignature()), _fencemanager, filepath, animationF);
-	int handle = _randpacage->Rand_mt();
-	_fbxs.insert(std::make_pair(handle, fbx));
-	return handle;
+	fbx->LoadModelDR(FBX_DRAW(_device, _comand, _graphics->GetRootSignature()), _fencemanager, fbxfilepath, animationF);
+	_fbxs.insert(std::make_pair(modelname, fbx));
 }
-void GameEngine::DrawFBXModelDR(const int handle) {
+void GameEngine::LoadFBXModelDR(const std::string& modelname,const std::string& filepath, bool animationF) {
+	if (_fbxs.size() > 0) {//既に存在する場合
+		decltype(_fbxs)::iterator it = _fbxs.find(modelname);
+		if (it != _fbxs.end()) { // 見つかった
+			//何もせず
+		}
+		else {//見つからないので追加する
+			CreateFBXModel(modelname, filepath, animationF);
+		}
+	}
+	else {//ない場合新規作成
+		CreateFBXModel(modelname, filepath, animationF);
+	}
+	
+	
+}
+void GameEngine::DrawFBXModelDR(const std::string& modelname) {
 	SetRootSignature();
-	auto fbx = _fbxs.at(handle);
-	if (fbx != nullptr) {
+	decltype(_fbxs)::iterator it = _fbxs.find(modelname);
+	if (it != _fbxs.end()) { 
+		auto fbx = _fbxs.at(modelname);
 		_drM->SetDrawPipeline(_comand);
 		fbx->DrawModelDR(FBX_DRAW(_device, _comand, _graphics->GetRootSignature()), TEX_DR, _whiteTexM, true);
 	}
 }
-void GameEngine::FBXAnimationPlay(const int handle,const std::string& animname,const int animframe) {
-	auto fbx = _fbxs.at(handle);
-	if (fbx != nullptr) {
+void GameEngine::FBXAnimationPlay(const std::string& modelname,const std::string& animname,const int animframe) {
+	decltype(_fbxs)::iterator it = _fbxs.find(modelname);
+	if (it != _fbxs.end()) { 
+		auto fbx = _fbxs.at(modelname);
 		fbx->AnimationPlay(animname, animframe);
 	}
 }
-void GameEngine::FBXAnimationEND(const int handle) {
-	auto fbx = _fbxs.at(handle);
-	if (fbx != nullptr) {
+void GameEngine::FBXAnimationEND(const std::string& modelname) {
+	decltype(_fbxs)::iterator it = _fbxs.find(modelname);
+	if (it != _fbxs.end()) { 
+		auto fbx = _fbxs.at(modelname);
 		fbx->AnimationEND();
 	}
 }
 
-void GameEngine::SetFBXRotateQuaternion(const int handle, const Vector3& axis, float angle) {
-	auto fbx = _fbxs.at(handle);
-	if (fbx != nullptr) {
-		fbx->SetRotateQuaternion(axis,angle);
+void GameEngine::SetFBXRotateQuaternion(const std::string& modelname, const Vector3& axis, float angle) {
+	decltype(_fbxs)::iterator it = _fbxs.find(modelname);
+	if (it != _fbxs.end()) {
+		auto fbx = _fbxs.at(modelname);
+		fbx->SetRotateQuaternion(axis, angle);
 	}
 }
-void GameEngine::SetFBXPostionQuaternion(const int handle, const Vector3& pos) {
-	auto fbx = _fbxs.at(handle);
-	if (fbx != nullptr) {
+void GameEngine::SetFBXPostionQuaternion(const std::string& modelname, const Vector3& pos) {
+	decltype(_fbxs)::iterator it = _fbxs.find(modelname);
+	if (it != _fbxs.end()) {
+		auto fbx = _fbxs.at(modelname);
 		fbx->SetPostionQuaternion(pos);
 	}
 }
-void GameEngine::SetFBXScaleQuaternion(const int handle, const Vector3& scale) {
-	auto fbx = _fbxs.at(handle);
-	if (fbx != nullptr) {
+void GameEngine::SetFBXScaleQuaternion(const std::string& modelname, const Vector3& scale) {
+	decltype(_fbxs)::iterator it = _fbxs.find(modelname);
+	if (it != _fbxs.end()) {
+		auto fbx = _fbxs.at(modelname);
 		fbx->SetScaleQuaternion(scale);
 	}
 }
-void GameEngine::SetFBXRotateQuaternion_mul(const int handle, const Vector3& newaxis, float newangle) {
-	auto fbx = _fbxs.at(handle);
-	if (fbx != nullptr) {
-		fbx->SetRotateQuaternion_mul(newaxis,newangle);
+void GameEngine::SetFBXRotateQuaternion_mul(const std::string& modelname, const Vector3& newaxis, float newangle) {
+	decltype(_fbxs)::iterator it = _fbxs.find(modelname);
+	if (it != _fbxs.end()) {
+		auto fbx = _fbxs.at(modelname);
+		fbx->SetRotateQuaternion_mul(newaxis, newangle);
 	}
 }
-DirectX::XMVECTOR GameEngine::GetFBXRotateQuaternion(const int handle) {
-	auto fbx = _fbxs.at(handle);
+DirectX::XMVECTOR GameEngine::GetFBXRotateQuaternion(const std::string& modelname) {
 	XMVECTOR v = { 0,0,0 };
-	if (fbx != nullptr) {
+	decltype(_fbxs)::iterator it = _fbxs.find(modelname);
+	if (it != _fbxs.end()) {
+		auto fbx = _fbxs.at(modelname);
 		return fbx->GetRotateQuaternion();
 	}
 	return v;
 }
-void GameEngine::SetFBXRotateQuaternion_Slerp(const int handle,const DirectX::XMVECTOR& oldvec,const DirectX::XMVECTOR& newvec, float t) {
-	auto fbx = _fbxs.at(handle);
-	if (fbx != nullptr) {
-		fbx->SetRotateQuaternion_Slerp(oldvec,newvec,t);
+void GameEngine::SetFBXRotateQuaternion_Slerp(const std::string& modelname,const DirectX::XMVECTOR& oldvec,const DirectX::XMVECTOR& newvec, float t) {
+	decltype(_fbxs)::iterator it = _fbxs.find(modelname);
+	if (it != _fbxs.end()) {
+		auto fbx = _fbxs.at(modelname);
+		fbx->SetRotateQuaternion_Slerp(oldvec, newvec, t);
 	}
 }
-DirectX::XMVECTOR GameEngine::CreateFBXRotateQuaternion(const int handle,const Vector3& axis, float angle) {
+DirectX::XMVECTOR GameEngine::CreateFBXRotateQuaternion(const std::string& modelname,const Vector3& axis, float angle) {
 	DirectX::XMVECTOR p = {0,0,0};
-	auto fbx = _fbxs.at(handle);
-	if (fbx != nullptr) {
+	decltype(_fbxs)::iterator it = _fbxs.find(modelname);
+	if (it != _fbxs.end()) {
+		auto fbx = _fbxs.at(modelname);
 		return fbx->CreateRotateQuaternion(axis, angle);
 	}
 	return p;
 }
-void GameEngine::SetFBXRotateQuaternion_Euler(const int handle, const Vector3& newrotate) {
-	auto fbx = _fbxs.at(handle);
-	if (fbx != nullptr) {
+void GameEngine::SetFBXRotateQuaternion_Euler(const std::string& modelname, const Vector3& newrotate) {
+	decltype(_fbxs)::iterator it = _fbxs.find(modelname);
+	if (it != _fbxs.end()) {
+		auto fbx = _fbxs.at(modelname);
 		fbx->SetRotateQuaternion_Euler(newrotate);
 	}
 }
-void GameEngine::SetFBXRotateQuaternionOrigin(const int handle, const Vector3& neworigin) {
-	auto fbx = _fbxs.at(handle);
-	if (fbx != nullptr) {
+void GameEngine::SetFBXRotateQuaternionOrigin(const std::string& modelname, const Vector3& neworigin) {
+	decltype(_fbxs)::iterator it = _fbxs.find(modelname);
+	if (it != _fbxs.end()) {
+		auto fbx = _fbxs.at(modelname);
 		fbx->SetRotateQuaternionOrigin(neworigin);
 	}
 }
-void GameEngine::SetFBXRotateQuaternion_Matrix(const int handle, DirectX::XMMATRIX& newmat) {
-	auto fbx = _fbxs.at(handle);
-	if (fbx != nullptr) {
+void GameEngine::SetFBXRotateQuaternion_Matrix(const std::string& modelname, DirectX::XMMATRIX& newmat) {
+	decltype(_fbxs)::iterator it = _fbxs.find(modelname);
+	if (it != _fbxs.end()) {
+		auto fbx = _fbxs.at(modelname);
 		fbx->SetRotateQuaternion_Matrix(newmat);
 	}
 }
-int GameEngine::GetAnimFrameEndPos(const int handle, const std::string& animname) {
-	auto fbx = _fbxs.at(handle);
-	if (fbx != nullptr) {
+int GameEngine::GetAnimFrameEndPos(const std::string& modelname, const std::string& animname) {
+	decltype(_fbxs)::iterator it = _fbxs.find(modelname);
+	if (it != _fbxs.end()) {
+		auto fbx = _fbxs.at(modelname);
 		return fbx->GetAnimFrameEndPos(animname);
 	}
 	return 0;
 }
 #pragma endregion
 #pragma region CubeMap
-const int GameEngine::LoadCubeMap(const std::string& texfilepath,const std::string& fbxfilepath) {
+void GameEngine::CreateCubeMap(const std::string& cubemapname, const std::string& texfilepath, const std::string& fbxfilepath) {
 	std::shared_ptr<CubeMapManager> cbmap(new CubeMapManager());
 	cbmap->LoadCubeMap(_device, _comand, texfilepath);
-	cbmap->CreateFBXMesh(_device,_comand,_graphics->GetRootSignature(),_fencemanager, fbxfilepath);
-	int handle = _randpacage->Rand_mt();
-	_cubemap.insert(std::make_pair(handle, cbmap));
-	return handle;
+	cbmap->CreateFBXMesh(_device, _comand, _graphics->GetRootSignature(), _fencemanager, fbxfilepath);
+	_cubemap.insert(std::make_pair(cubemapname, cbmap));
 }
-void GameEngine::PreCubeMap(const int handle) {
+void GameEngine::LoadCubeMap(const std::string& cubemapname,const std::string& texfilepath,const std::string& fbxfilepath) {
+	
+	if (_cubemap.size() > 0) {
+		auto cubemap = _cubemap.at(cubemapname);
+		if (cubemap != nullptr) {
+		//何もしない
+		}
+		else {
+			CreateCubeMap(cubemapname, texfilepath, fbxfilepath);
+		}
+	}
+	else {
+		CreateCubeMap(cubemapname, texfilepath, fbxfilepath);
+	}
+
+
+}
+void GameEngine::PreCubeMap(const std::string& cubemapname) {
 	SetRootSignature();
-	auto cubemap = _cubemap.at(handle);
+	auto cubemap = _cubemap.at(cubemapname);
 	if (cubemap != nullptr) {
 		_drM->SetCMapPipeline(_comand);
 		cubemap->PreUpdate(_device, _comand, _graphics->GetRootSignature(),_fencemanager,_graphics->GetDepth(),_whiteTexM);
 	}
 }
-void GameEngine::SetCubeMapScaleQuaternion(const int handle,const Vector3& newscale) {
-	auto cubemap = _cubemap.at(handle);
+void GameEngine::SetCubeMapScaleQuaternion(const std::string& cubemapname,const Vector3& newscale) {
+	auto cubemap = _cubemap.at(cubemapname);
 	if (cubemap != nullptr) {
 		cubemap->SetScaleQuaternion(newscale);
 	}
 }
-void GameEngine::SetCubeMapPostionQuaternion(const int handle, const Vector3& newpos) {
-	auto cubemap = _cubemap.at(handle);
+void GameEngine::SetCubeMapPostionQuaternion(const std::string& cubemapname, const Vector3& newpos) {
+	auto cubemap = _cubemap.at(cubemapname);
 	if (cubemap != nullptr) {
 		cubemap->SetPostionQuaternion(newpos);
 	}
 }
-void GameEngine::SetCubeMapRotateQuaternion(const int handle, const Vector3& newaxis,float angle) {
-	auto cubemap = _cubemap.at(handle);
+void GameEngine::SetCubeMapRotateQuaternion(const std::string& cubemapname, const Vector3& newaxis,float angle) {
+	auto cubemap = _cubemap.at(cubemapname);
 	if (cubemap != nullptr) {
 		cubemap->SetRotateQuaternion(newaxis,angle);
 	}
@@ -426,11 +489,17 @@ void GameEngine::imguiCubeMapScale(Vector3& d_cubemap) {
 void GameEngine::imguiAddMeshScale(Vector3* newscale, std::string& text, std::string& label_x, std::string& label_y, std::string& label_z,float maxsize) {
 	_imgui->ShowAddMeshScale(newscale,text, label_x,label_y, label_z, maxsize);
 }
-void GameEngine::imguiAddMeshVector(Vector3& newparam, std::string& text, std::string& label_x, std::string& label_y, std::string& label_z, float maxsize,float minsize) {
-	_imgui->ShowAddMeshVector(newparam, text, label_x, label_y, label_z, maxsize, minsize);
+void GameEngine::imguiAddMeshVector4(Vector4& newparam, std::string& text, std::string& label_x, std::string& label_y, std::string& label_z, std::string& label_w, float maxsize, float minsize) {
+	_imgui->ShowAddMeshVector4(newparam, text, label_x, label_y, label_z, label_w, maxsize, minsize);
+}
+void GameEngine::imguiAddMeshVector3(Vector3& newparam, std::string& text, std::string& label_x, std::string& label_y, std::string& label_z, float maxsize,float minsize) {
+	_imgui->ShowAddMeshVector3(newparam, text, label_x, label_y, label_z, maxsize, minsize);
 }
 void GameEngine::imguiAddMeshFloat(float& newparam, std::string& text, std::string& label, float maxsize, float minsize) {
 	_imgui->ShowAddMeshFloat(newparam, text, label,maxsize, minsize);
+}
+void GameEngine::imguiAddMeshInt(int& newparam, std::string& text, std::string& label, int maxsize, int minsize) {
+	_imgui->ShowAddMeshInt(newparam, text, label, maxsize, minsize);
 }
 void GameEngine::imguiPre() {
 	_imgui->PreGui(_comand);
@@ -447,9 +516,10 @@ void GameEngine::DR_Post() {
 	_drM->PostRender(_comand, _fencemanager);
 }
 #pragma endregion
-void GameEngine::DrawScreen(const int attachcamerahandle) {
+void GameEngine::DrawScreen(const std::string& cameraname) {
 	SetRootSignature();
-	auto cam = _cameras.at(attachcamerahandle);
+	_graphics->RTVSwapChainUpdate(_device, _comand, _sc);
+	auto cam = _cameras.at(cameraname);
 	if (cam != nullptr) {
 		_f_ayer->Draw(_device, _comand, cam,_fencemanager);
 	}
@@ -460,8 +530,8 @@ void GameEngine::DrawScreen(const int attachcamerahandle) {
 	
 }
 #pragma region DS
-void GameEngine::PreDeferredShadingRender(const int attachcamerahandle) {
-	auto cam = _cameras.at(attachcamerahandle);
+void GameEngine::PreDeferredShadingRender(const std::string& cameraname) {
+	auto cam = _cameras.at(cameraname);
 	if (cam != nullptr) {
 		_ds->PreRender(_device, _comand, _graphics,_sc,cam,_fencemanager);
 	}
@@ -476,8 +546,8 @@ void GameEngine::PostDeferredShadingRender() {
 }
 #pragma endregion
 #pragma region PP
-void GameEngine::PrePostProsessRender(const int attachcamerahandle) {
-	auto cam = _cameras.at(attachcamerahandle);
+void GameEngine::PrePostProsessRender(const std::string& cameraname) {
+	auto cam = _cameras.at(cameraname);
 	if (cam != nullptr) {
 		_pp->PreRender(_device, _comand, _graphics,_sc, cam, _fencemanager);
 	}
@@ -491,19 +561,26 @@ void GameEngine::PostPostProsessRender() {
 	_pp->PostRender(_comand, _fencemanager);
 }
 #pragma endregion
-float GameEngine::GetRand_mt() {
+float GameEngine::GetRandMt() {
 	return _randpacage->Rand_mt();
+}
+const float GameEngine::GetRandFloatRengeMt(const float min, const float max) {
+	return _randpacage->Rand_mt_float(min,max);
+}
+const int GameEngine::GetRandIntRengeMt(const int min, const int max) {
+	return _randpacage->Rand_mt_int(min, max);
 }
 #pragma region UI
 const int GameEngine::CreateRECTUIHandle(const std::string& texfilepath) {
 	std::shared_ptr<RECTUI> ui(new RECTUI());
 	ui->CreateUIRect(_device,_comand,_graphics->GetRootSignature(), texfilepath);
-	int handle = GetRand_mt();
+	int handle = GetRandMt();
 	_uis.insert(std::make_pair(handle, ui));
 	return handle;
 }
-void GameEngine::DrawRECTUI(const int uihandle,const int attachcamerahandle) {
-	auto cam = _cameras.at(attachcamerahandle);
+
+void GameEngine::DrawRECTUI(const int uihandle, const std::string& cameraname) {
+	auto cam = _cameras.at(cameraname);
 	if (cam != nullptr) {
 		auto ui = _uis.at(uihandle);
 		if (ui != nullptr) {
@@ -531,5 +608,24 @@ void GameEngine::SetScaleUI(const int uihandle, const Vector3& newscale) {
 		ui->SetScale(newscale);
 	}
 }
+void GameEngine::SetRotateOriginUI(const int uihandle, const Vector3& newrotateorigin) {
+	auto ui = _uis.at(uihandle);
+	if (ui != nullptr) {
+		ui->SetRotateOrigin(newrotateorigin);
+	}
+}
+void GameEngine::SetColorUI(const int uihandle, const Vector4& newcolor) {
+	auto ui = _uis.at(uihandle);
+	if (ui != nullptr) {
+		ui->SetColor(newcolor);
+	}
+}
+void GameEngine::SetRotateUI(const int uihandle, const float newrotate) {
+	auto ui = _uis.at(uihandle);
+	if (ui != nullptr) {
+		ui->SetRotate(newrotate);
+	}
+}
+
 
 #pragma endregion

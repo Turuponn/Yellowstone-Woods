@@ -129,10 +129,8 @@ namespace {
 }
 
 DeferredShading::DeferredShading() {
-
 }
 DeferredShading::~DeferredShading() {
-
 }
 void DeferredShading::CreateGbuffer(shared_ptr<D3D12DeviceManager>& device, std::shared_ptr<ComandManager>& comand, std::shared_ptr<RootSignatureManager>& rootsignature) {
 	
@@ -163,13 +161,13 @@ void DeferredShading::Initialize(std::shared_ptr<D3D12DeviceManager>& device, st
 }
 void DeferredShading::CreateRT(std::shared_ptr<D3D12DeviceManager>& device) {
 	shared_ptr<RenderTargetCreate> rtc(new RenderTargetCreate());
-	rtc->RTVCreateHeaps(device->GetDevice(), RTVNUM, &_rtvheap);
+	rtc->RTVCreateHeaps(device->GetDevice().Get(), RTVNUM, &_rtvheap);
 	_rtvbuffer.resize(RTVNUM);
 	SIZE_T ptr = _rtvheap->GetCPUDescriptorHandleForHeapStart().ptr;
 	SIZE_T offsetted = 0;
 	for (int i = 0; i < RTVNUM; i++) {
 		rtc->CreateRTBuffer(
-			device->GetDevice(),
+			device->GetDevice().Get(),
 			SCREEN_SIZE_X,
 			SCREEN_SIZE_Y,
 			D3D12_RESOURCE_STATE_RENDER_TARGET,
@@ -180,7 +178,7 @@ void DeferredShading::CreateRT(std::shared_ptr<D3D12DeviceManager>& device) {
 		D3D12_CPU_DESCRIPTOR_HANDLE desc = {};
 		desc.ptr = offsetted;
 		rtc->CreateRTVViews(
-			device->GetDevice(),
+			device->GetDevice().Get(),
 			desc,
 			_rtvbuffer[i].Get(),
 			DXGI_FORMAT_R8G8B8A8_UNORM //テクスチャ用フォーマット
@@ -192,7 +190,8 @@ void DeferredShading::CreateSRV(shared_ptr<D3D12DeviceManager>& device, std::sha
 		shared_ptr<TextureManager> texM(new TextureManager());
 		_texMs.push_back(texM);
 		_texMs[i]->SRVCreateHeap(device);
-		_texMs[i]->SRVCreateView(device, DXGI_FORMAT_R8G8B8A8_UNORM, _rtvbuffer[i]);
+		auto resoce = _rtvbuffer[i].Get();
+		_texMs[i]->SRVCreateView(device, DXGI_FORMAT_R8G8B8A8_UNORM, resoce);
 	}
 }
 void DeferredShading::CreateVS() {
@@ -235,20 +234,24 @@ void DeferredShading::CreatePipeline(shared_ptr<D3D12DeviceManager>& device, std
 void DeferredShading::PreRender(std::shared_ptr<D3D12DeviceManager>& device, std::shared_ptr<ComandManager>& comand, std::shared_ptr<Graphics>& graphics,std::shared_ptr<SwapChainManager>& swapchain,std::shared_ptr< Camera>& camera,std::shared_ptr< FenceManager>& fence) {
 	_mrtPipeline->SetPipeline(comand);
 	for (auto& buff : _rtvbuffer) {
-		comand->ComandRBarrier(D3D12_RESOURCE_STATE_RENDER_TARGET,D3D12_RESOURCE_STATE_PRESENT, buff.Get());
+		auto b = buff.Get();
+		comand->ComandRBarrier(D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT, b);
 	}
 	graphics->RTVUpdata(device, comand,swapchain, _rtvheap->GetCPUDescriptorHandleForHeapStart(), RTVNUM);
 	for (auto& buff : _rtvbuffer) {
-		comand->ComandRBarrier(D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET, buff.Get());
+		auto b = buff.Get();
+		comand->ComandRBarrier(D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET, b);
 	}
+	graphics->RTVClear(comand, _rtvheap->GetCPUDescriptorHandleForHeapStart());
 	_layer->DrawScreen(comand,device, camera, fence);
 }
 void DeferredShading::PostRender(std::shared_ptr<ComandManager>& comand, std::shared_ptr<FenceManager>& fence) {
 	Draw(comand, fence);
 }
 void DeferredShading::Draw(std::shared_ptr<ComandManager>& comand, std::shared_ptr<FenceManager>& fence) {
-	comand->ComandSetDescriptorHeaps(1, _texMs[(int)GbuffLaout::COLOR]->GetSrvHeap());
-	comand->ComandSetGraphicsRootDescriptorTable(ROOT_PARAM_TEXTURE_DL_COLOR, _texMs[(int)GbuffLaout::COLOR]->GetSrvHeap());
+	auto heap = _texMs[(int)GbuffLaout::COLOR]->GetSrvHeap().Get();
+	comand->ComandSetDescriptorHeaps(1, heap);
+	comand->ComandSetGraphicsRootDescriptorTable(ROOT_PARAM_TEXTURE_DL_COLOR, heap);
 }
 void DeferredShading::SetDrawPipeline(std::shared_ptr<ComandManager>& comand) {
 	_mrtPipeline->SetPipeline(comand);

@@ -9,10 +9,12 @@
 
 
 WhiteTextureManager::WhiteTextureManager() {
-
+	_writetexbuff = nullptr;
+	_writetexheap = nullptr;
 }
 WhiteTextureManager::~WhiteTextureManager() {
-
+	SAFE_RELEASE(_writetexbuff);
+	SAFE_RELEASE(_writetexheap);
 }
 
 

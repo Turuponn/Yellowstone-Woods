@@ -6,29 +6,29 @@
 #include <d3d12.h>
 
 DepthManager::DepthManager() {
-	
+
 
 }
 DepthManager::~DepthManager() {
-	
+
 }
 void DepthManager::Initialize(std::shared_ptr<D3D12DeviceManager>& device) {
 	std::shared_ptr<DepthCreate> d(new DepthCreate());
-	d->CreateDepthBuffer(device->GetDevice(), SCREEN_SIZE_X, SCREEN_SIZE_Y, &_depthbuffer);
-	d->CreateDepthDescHeap(device->GetDevice(), &_depthHeapDesc);
-	d->CreateDepthBufferView(device->GetDevice(), _depthbuffer.Get(), _depthHeapDesc.Get());
+	d->CreateDepthBuffer(device->GetDevice().Get(), SCREEN_SIZE_X, SCREEN_SIZE_Y, &_depthbuffer);
+	d->CreateDepthDescHeap(device->GetDevice().Get(), &_depthHeapDesc);
+	d->CreateDepthBufferView(device->GetDevice().Get(), _depthbuffer.Get(), _depthHeapDesc.Get());
 }
-void DepthManager::CreateBuffer(std::shared_ptr<D3D12DeviceManager>& device,const int screensize_x, const int screensize_y) {
+void DepthManager::CreateBuffer(std::shared_ptr<D3D12DeviceManager>& device, const int screensize_x, const int screensize_y) {
 	std::shared_ptr<DepthCreate> d(new DepthCreate());
-	d->CreateDepthBuffer(device->GetDevice(), SCREEN_SIZE_X, SCREEN_SIZE_Y, &_depthbuffer);
+	d->CreateDepthBuffer(device->GetDevice().Get(), SCREEN_SIZE_X, SCREEN_SIZE_Y, &_depthbuffer);
 }
 void DepthManager::CreateHeap(std::shared_ptr<D3D12DeviceManager>& device) {
 	std::shared_ptr<DepthCreate> d(new DepthCreate());
-	d->CreateDepthDescHeap(device->GetDevice(), &_depthHeapDesc);
+	d->CreateDepthDescHeap(device->GetDevice().Get(), &_depthHeapDesc);
 }
 void DepthManager::CreateView(std::shared_ptr<D3D12DeviceManager>& device, Microsoft::WRL::ComPtr<ID3D12Resource>& pResoce) {
 	std::shared_ptr<DepthCreate> d(new DepthCreate());
-	d->CreateDepthBufferView(device->GetDevice(), pResoce.Get(), _depthHeapDesc.Get());
+	d->CreateDepthBufferView(device->GetDevice().Get(), pResoce.Get(), _depthHeapDesc.Get());
 }
 Microsoft::WRL::ComPtr<ID3D12Resource>& DepthManager::GetDepthBuffer() {
 	return _depthbuffer;

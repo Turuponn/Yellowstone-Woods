@@ -1,11 +1,11 @@
 #pragma once
 
 
-#include <wrl.h>
 #include <string>
 #include <memory>
 #include <stdint.h>
 #include <vector>
+#include <wrl.h>
 
 
 
@@ -24,7 +24,7 @@ struct D3D12_SUBRESOURCE_DATA;
 enum D3D12_RESOURCE_FLAGS;
 
 struct TextureMemory {
-	Microsoft::WRL::ComPtr<ID3D12Resource> Resource;
+	ID3D12Resource* Resource;
 	std::unique_ptr<uint8_t[]> ddsData;
 	std::vector<D3D12_SUBRESOURCE_DATA> subresources;
 };
@@ -37,7 +37,7 @@ private:
 
 public:
 	TextureManager();
-	virtual ~TextureManager();
+	~TextureManager();
 
 	/// <summary>
 	/// WICをつかったテクスチャロード
@@ -75,7 +75,7 @@ public:
 	void SRVCreateView(
 		std::shared_ptr<D3D12DeviceManager>& device,
 		DXGI_FORMAT srvtexformat,
-		Microsoft::WRL::ComPtr<ID3D12Resource>& buff
+		ID3D12Resource*& buff
 	);
 	void SRVCreateView(
 		std::shared_ptr<D3D12DeviceManager>& device,
@@ -109,8 +109,8 @@ public:
 	
 
 
-	//TODO:　自己参照
-	ID3D12DescriptorHeap* GetSrvHeap();
+	
+	Microsoft::WRL::ComPtr<ID3D12DescriptorHeap>& GetSrvHeap();
 	const std::string& GetTextureName();
 private:
 	Microsoft::WRL::ComPtr<ID3D12Resource> _texturebuffer;
@@ -125,6 +125,6 @@ private:
 
 	
 	//CubeMap
-	Microsoft::WRL::ComPtr<ID3D12Resource> textureUploadHeap;
+	Microsoft::WRL::ComPtr<ID3D12Resource> _textureUploadHeap;
 };
 

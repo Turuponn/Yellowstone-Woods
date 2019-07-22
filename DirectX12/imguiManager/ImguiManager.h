@@ -53,9 +53,10 @@ public:
 	/// <param name="label_y"></param>
 	/// <param name="label_z"></param>
 	void ShowAddMeshScale(Vector3* newscale, std::string& text, std::string& label_x, std::string& label_y, std::string& label_z,float maxsize);
-	void ShowAddMeshVector(Vector3& newparam, std::string& text, std::string& label_x, std::string& label_y, std::string& label_z, float maxsize, float minsize);
+	void ShowAddMeshVector3(Vector3& newparam, std::string& text, std::string& label_x, std::string& label_y, std::string& label_z, float maxsize, float minsize);
+	void ShowAddMeshVector4(Vector4& newparam, std::string& text, std::string& label_x, std::string& label_y, std::string& label_z, std::string& label_w, float maxsize, float minsize);
 	void ShowAddMeshFloat(float& newparam, std::string& text, std::string& label, float maxsize, float minsize);
-
+	void ShowAddMeshInt(int& newparam, std::string& text, std::string& label, int maxsize, int minsize);
 	//Å‰‚Ìˆ—
 	void PreGui(std::shared_ptr<ComandManager>& comand);
 	//ÅŒã‚Ìˆ—

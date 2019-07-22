@@ -7,14 +7,17 @@
 #include "DirectXManagers\Texture\TextureManager.h"
 #include "DirectXManagers\comand\ComandManager.h"
 #include "d3dx12.h"
-
+#include "constance.h"
 
 
 ComputeShadaManager::ComputeShadaManager() {
 
 }
 ComputeShadaManager::~ComputeShadaManager() {
-
+	SAFE_RELEASE(_cs);
+	SAFE_RELEASE(_csbuffer);
+	SAFE_RELEASE(_uavDescHeap);
+	SAFE_RELEASE(_srvDescHeap);
 }
 void ComputeShadaManager::CreateShada(wchar_t* filename, char* funcname) {
 	std::shared_ptr<ShadaCreate> sc(new ShadaCreate());
@@ -67,12 +70,12 @@ void ComputeShadaManager::CreateUAVheap(std::shared_ptr<D3D12DeviceManager>& dev
 }
 void ComputeShadaManager::bufferMap(void* address) {
 	//Rengeが0,0だとCPUからのアクセスができなくなる
-	_rmap->Buffer_Map_Renge(address, _csbuffer.Get());
+	_rmap->Buffer_Map_Renge(address, _csbuffer);
 
 }
 
 void ComputeShadaManager::bufferUnMap() {
-	_rmap->Buffer_Unmap(_csbuffer.Get());
+	_rmap->Buffer_Unmap(_csbuffer);
 }
 void ComputeShadaManager::CreateUAView(std::shared_ptr<D3D12DeviceManager>& device,int datasize,size_t stride) {
 	//ビュー作成
@@ -81,7 +84,7 @@ void ComputeShadaManager::CreateUAView(std::shared_ptr<D3D12DeviceManager>& devi
 	uavDesc.ViewDimension = D3D12_UAV_DIMENSION_BUFFER;
 	uavDesc.Buffer.NumElements = datasize;
 	uavDesc.Buffer.StructureByteStride = static_cast<UINT>(stride);//0以外だと構造化バッファとして扱われる
-	device->GetDevice()->CreateUnorderedAccessView(_csbuffer.Get(), nullptr, &uavDesc, _uavDescHeap.Get()->GetCPUDescriptorHandleForHeapStart());
+	device->GetDevice()->CreateUnorderedAccessView(_csbuffer, nullptr, &uavDesc, _uavDescHeap->GetCPUDescriptorHandleForHeapStart());
 
 }
 void ComputeShadaManager::Initialize() {
@@ -100,20 +103,20 @@ void ComputeShadaManager::CreateSRVBuffer() {
 
 }
 void ComputeShadaManager::StartResoce(std::shared_ptr<ComandManager>& comand) {
-	comand->ComandRBarrier(D3D12_RESOURCE_STATE_GENERIC_READ, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, _csbuffer.Get());
+	comand->ComandRBarrier(D3D12_RESOURCE_STATE_GENERIC_READ, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, _csbuffer);
 }
 void ComputeShadaManager::EndResoce(std::shared_ptr<ComandManager>& comand) {
-	comand->ComandRBarrier(D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_GENERIC_READ, _csbuffer.Get());
+	comand->ComandRBarrier(D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_GENERIC_READ, _csbuffer);
 }
-Microsoft::WRL::ComPtr<ID3DBlob>& ComputeShadaManager::GetCSShada() {
+ID3DBlob*& ComputeShadaManager::GetCSShada() {
 	return _cs;
 }
-Microsoft::WRL::ComPtr<ID3D12DescriptorHeap>& ComputeShadaManager::GetUAVHeap() {
+ID3D12DescriptorHeap*& ComputeShadaManager::GetUAVHeap() {
 	return _uavDescHeap;
 }
-Microsoft::WRL::ComPtr<ID3D12DescriptorHeap>& ComputeShadaManager::GetSRVHeap() {
+ID3D12DescriptorHeap*& ComputeShadaManager::GetSRVHeap() {
 	return _srvDescHeap;
 }
-Microsoft::WRL::ComPtr<ID3D12Resource>& ComputeShadaManager::GetUAVBuffer() {
+ID3D12Resource*& ComputeShadaManager::GetUAVBuffer() {
 	return _csbuffer;
 }

@@ -19,7 +19,7 @@ void D3D11On12DeviceManager::Create11On12Device(std::shared_ptr<D3D12DeviceManag
 	d3d11DeviceFlags |= D3D11_CREATE_DEVICE_DEBUG;
 #endif
 	
-	if (!(SUCCEEDED(D3D11On12CreateDevice(
+	/*if (!(SUCCEEDED(D3D11On12CreateDevice(
 		device->GetDevice(),
 		d3d11DeviceFlags,
 		nullptr,
@@ -32,9 +32,10 @@ void D3D11On12DeviceManager::Create11On12Device(std::shared_ptr<D3D12DeviceManag
 		nullptr
 	)))) {
 		throw(1);
-	}
+	}*/
 
 	_d3d11Device.As(&_d3d11On12Device);
+	
 }
 Microsoft::WRL::ComPtr<ID3D11On12Device>& D3D11On12DeviceManager::GetD3D11on12Device() {
 	return _d3d11On12Device;

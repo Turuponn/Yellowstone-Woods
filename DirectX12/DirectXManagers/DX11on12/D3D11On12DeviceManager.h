@@ -15,7 +15,7 @@ struct ID3D11On12Device;
 class D3D11On12DeviceManager {
 public:
 	D3D11On12DeviceManager();
-	virtual ~D3D11On12DeviceManager();
+	~D3D11On12DeviceManager();
 
 	/// <summary>
 	/// Dx11の機能を12で利用できるようなデバイスを作成します。

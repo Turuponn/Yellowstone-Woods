@@ -17,12 +17,15 @@
 #include "DirectXManagers\swapchain\SwapChainManager.h"
 #include "d3dx12.h"
 
+
 UINT64 fencevalue = 0;
+
+
 ComandManager::ComandManager() {
 	Initialize();
 }
 ComandManager::~ComandManager() {
-	
+
 }
 
 void ComandManager::Initialize() {
@@ -34,23 +37,23 @@ void ComandManager::Initialize() {
 void ComandManager::CreateComandAllocators(std::shared_ptr<D3D12DeviceManager>& device, std::shared_ptr<SwapChainManager>& swapchain) {
 	_comandAllocators.resize(swapchain->GetFrameBufferCount());
 	for (int i = 0; i < swapchain->GetFrameBufferCount(); i++) {
-		_comandcreate->CreateComandAllocator(device->GetDevice(), &_comandAllocators[i]);
+		_comandcreate->CreateComandAllocator(device->GetDevice().Get(), &_comandAllocators[i]);
 	}
 }
 void ComandManager::CreateComandQueue(std::shared_ptr<D3D12DeviceManager>& device) {
-	_comandcreate->CreateCommandQueue(device->GetDevice(), &_comand_queue);
+	_comandcreate->CreateCommandQueue(device->GetDevice().Get(), &_comandQueue);
 }
 void ComandManager::CreateComandList(std::shared_ptr<D3D12DeviceManager>& device, std::shared_ptr<SwapChainManager>& swapchain) {
-	_comandcreate->CreateComandList(device->GetDevice(), _comandAllocators[swapchain->GetFrameBufferIndex()].Get(), &_comandList);
+	_comandcreate->CreateComandList(device->GetDevice().Get(), _comandAllocators[swapchain->GetFrameBufferIndex()].Get(), &_comandList);
 }
 void ComandManager::ComandListWaitPorlling(std::shared_ptr<FenceManager>& fence) {
 	fencevalue++;
-	_comand_queue->Signal(fence->GetFence(), fencevalue);
+	_comandQueue->Signal(fence->GetFence().Get(), fencevalue);
 	while (fence->GetFence()->GetCompletedValue() != fencevalue) {}
 }
 void ComandManager::ComandExecuteCommandList() {
 	ID3D12CommandList* cmdlists[] = { _comandList.Get() };
-	_comand_queue->ExecuteCommandLists(_countof(cmdlists), cmdlists);
+	_comandQueue->ExecuteCommandLists(_countof(cmdlists), cmdlists);
 }
 void ComandManager::ComandClose() {
 	if (_comandList->Close() != S_OK) {
@@ -63,16 +66,16 @@ void ComandManager::ComandReset(std::shared_ptr<SwapChainManager>& swapchain) {
 	}
 }
 void ComandManager::SetPipeline(std::shared_ptr<PipelineStateManager>& pipelinestate) {
-	_comandList->SetPipelineState(pipelinestate->GetPipelineState());
+	_comandList->SetPipelineState(pipelinestate->GetPipelineState().Get());
 }
 void ComandManager::ReSetPipeline(std::shared_ptr<PipelineStateManager>& pipelinestate, std::shared_ptr<SwapChainManager>& swapchain) {
-	_comandList->Reset(_comandAllocators[swapchain->GetFrameBufferIndex()].Get(), pipelinestate->GetPipelineState());
+	_comandList->Reset(_comandAllocators[swapchain->GetFrameBufferIndex()].Get(), pipelinestate->GetPipelineState().Get());
 }
 void ComandManager::ReSetPipeline(std::shared_ptr<SwapChainManager>& swapchain) {
 	_comandList->Reset(_comandAllocators[swapchain->GetFrameBufferIndex()].Get(),nullptr);
 }
 void ComandManager::RootSignatureAttach(std::shared_ptr<RootSignatureManager>& rootsignature) {
-	_comandList->SetGraphicsRootSignature(rootsignature->GetRootSignature());
+	_comandList->SetGraphicsRootSignature(rootsignature->GetRootSignature().Get());
 }
 void ComandManager::ComandRSSetViewPorts(const int viewportnum,D3D12_VIEWPORT& viewport) {
 	_comandList->RSSetViewports(viewportnum, &viewport);
@@ -80,8 +83,8 @@ void ComandManager::ComandRSSetViewPorts(const int viewportnum,D3D12_VIEWPORT& v
 void ComandManager::ComandRSSetScissorRects(const int scissorrectnum, tagRECT& scissorRect) {
 	_comandList->RSSetScissorRects(scissorrectnum, &scissorRect);
 }
-void ComandManager::ComandOMSetRenderTargets(const int numrtv, Microsoft::WRL::ComPtr<ID3D12DescriptorHeap>& descheap,std::shared_ptr<DepthManager>& depth) {
-	_comandList->OMSetRenderTargets(numrtv, &CD3DX12_CPU_DESCRIPTOR_HANDLE(descheap.Get()->GetCPUDescriptorHandleForHeapStart()), false, &depth->GetDescriptorHeap()->GetCPUDescriptorHandleForHeapStart());
+void ComandManager::ComandOMSetRenderTargets(const int numrtv, ID3D12DescriptorHeap*& descheap,std::shared_ptr<DepthManager>& depth) {
+	_comandList->OMSetRenderTargets(numrtv, &CD3DX12_CPU_DESCRIPTOR_HANDLE(descheap->GetCPUDescriptorHandleForHeapStart()), false, &depth->GetDescriptorHeap()->GetCPUDescriptorHandleForHeapStart());
 }
 void ComandManager::ComandClearDepthStencilView(std::shared_ptr<DepthManager>& depth) {
 	_comandList->ClearDepthStencilView(depth->GetDescriptorHeap()->GetCPUDescriptorHandleForHeapStart(), D3D12_CLEAR_FLAG_DEPTH, 1.0f, 0, 0, nullptr);
@@ -89,10 +92,10 @@ void ComandManager::ComandClearDepthStencilView(std::shared_ptr<DepthManager>& d
 void ComandManager::ComandClearRenderTargetView(CD3DX12_CPU_DESCRIPTOR_HANDLE& rtv, float* clearcolor) {
 	_comandList->ClearRenderTargetView(rtv, clearcolor, 0, nullptr);
 }
-void ComandManager::ComandRBarrier(D3D12_RESOURCE_STATES statebefore,D3D12_RESOURCE_STATES stateafter,ID3D12Resource* tergetresoce) {
+void ComandManager::ComandRBarrier(D3D12_RESOURCE_STATES statebefore,D3D12_RESOURCE_STATES stateafter,ID3D12Resource*& tergetresoce) {
 	_rb->Barrier(_comandList.Get(),1, statebefore, stateafter, tergetresoce);
 }
-void ComandManager::ComandRBarrierArry(const int resocenum,D3D12_RESOURCE_STATES statebefore, D3D12_RESOURCE_STATES stateafter, ID3D12Resource* tergetresoce) {
+void ComandManager::ComandRBarrierArry(const int resocenum,D3D12_RESOURCE_STATES statebefore, D3D12_RESOURCE_STATES stateafter, ID3D12Resource*& tergetresoce) {
 	_rb->Barrier(_comandList.Get(), resocenum, statebefore, stateafter, tergetresoce);
 }
 void ComandManager::ComandIASetVertexBuffers(std::shared_ptr<VertexBufferManager>& vbm) {
@@ -110,19 +113,19 @@ void ComandManager::ComandDrawIndexedInstanced(const int instancenum,const int f
 void ComandManager::ComandDrawInstanced(const int vertexnum,const int instancenum) {
 	_comandList->DrawInstanced(vertexnum, instancenum, 0, 0);
 }
-void ComandManager::ComandSetDescriptorHeaps(const int descheapnum, ID3D12DescriptorHeap*  heap) {
+void ComandManager::ComandSetDescriptorHeaps(const int descheapnum, ID3D12DescriptorHeap*&  heap) {
 	_comandList->SetDescriptorHeaps(descheapnum, &heap);
 }
-void ComandManager::ComandSetGraphicsRootDescriptorTable(const int rootparamidx, ID3D12DescriptorHeap* heap) {
+void ComandManager::ComandSetGraphicsRootDescriptorTable(const int rootparamidx, ID3D12DescriptorHeap*& heap) {
 	_comandList->SetGraphicsRootDescriptorTable(rootparamidx, heap->GetGPUDescriptorHandleForHeapStart());
 }
-std::vector<Microsoft::WRL::ComPtr<ID3D12CommandAllocator>>& ComandManager::GetComandAllocators() {
+std::vector< Microsoft::WRL::ComPtr<ID3D12CommandAllocator>>& ComandManager::GetComandAllocators() {
 	return _comandAllocators;
 }
-Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList>& ComandManager::GetGraphicsCommandList() {
+Microsoft::WRL::ComPtr <ID3D12GraphicsCommandList>& ComandManager::GetGraphicsCommandList() {
 	return _comandList;
 }
 Microsoft::WRL::ComPtr<ID3D12CommandQueue>& ComandManager::GetComandQueue() {
-	return _comand_queue;
+	return _comandQueue;
 }
 

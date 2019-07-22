@@ -240,8 +240,10 @@ void FBXLoader::LoadVertexData(std::shared_ptr<D3D12DeviceManager>& device, std:
 			MaterialData(mesh, device, v, comand, fence, rootsignature);
 			_vertexData_mesh.push_back(v);// 剛体は無視する
 			
-			//Animation 用Dataの抽出
-			LoadSkinAnim(_fbxScene->GetRootNode()->GetChild(i), _fbxScene);		
+			if (animationF != false) {
+				//Animation 用Dataの抽出
+				LoadSkinAnim(_fbxScene->GetRootNode()->GetChild(i), _fbxScene);
+			}
 		}
 	}
 	CreateVertexBuffer(_vertexData_mesh[0].size(), device, fence, comand);
@@ -267,11 +269,11 @@ const std::string FBXLoader::TexturePath(const std::string& filepath) {
 
 void FBXLoader::LoadSkinAnim(FbxNode* node, FbxScene* scene) {
 
-
-	FbxSkin* skinDeformer = nullptr;
-	skinDeformer = (FbxSkin *)node->GetMesh()->GetDeformer(0, FbxDeformer::eSkin);
+	auto skinDeformer = (FbxSkin*)node->GetMesh()->GetDeformer(0, FbxDeformer::eSkin);
 	if (skinDeformer == nullptr) {
+#ifdef _DEBUG
 		printf("FBX:  Not Animation \n");
+#endif
 		return;
 	}
 	if (node->GetMesh() == nullptr) {
@@ -283,11 +285,13 @@ void FBXLoader::LoadSkinAnim(FbxNode* node, FbxScene* scene) {
 	for (int i = 0; i < animArray.GetCount(); i++) {
 		std::string animname = animArray[i]->Buffer();
 		std::string workanimname = animname;
+#ifdef _DEBUG
 		printf("Animation :%s\n", animname.c_str());
+#endif
 		auto s = animname.substr(0, animname.find_last_of('|') + 1);//アニメーション名を簡単にします
 		workanimname.erase(0, s.size());
 
-		FbxTakeInfo *takeInfo = scene->GetTakeInfo(animname.c_str());
+		auto takeInfo = scene->GetTakeInfo(animname.c_str());
 		start = takeInfo->mLocalTimeSpan.GetStart();//ついでにAnimation用Timeを抽出
 		stop = takeInfo->mLocalTimeSpan.GetStop();
 		FrameTime.SetTime(0, 0, 0, 1, 0, scene->GetGlobalSettings().GetTimeMode());//timeはframeに設定
@@ -308,8 +312,8 @@ void FBXLoader::LoadSkinAnim(FbxNode* node, FbxScene* scene) {
 		ainfo.endFrame = endFrame;
 		ainfo.search_animname = s;
 		_frameList.insert(std::make_pair(workanimname, ainfo));
-
 	}
+	FbxArrayDelete(animArray);//Delete Array
 	//wheightとjointindexの取得
 	auto mesh = node->GetMesh();
 	auto pcount = mesh->GetControlPointsCount();
@@ -341,10 +345,11 @@ void FBXLoader::LoadSkinAnim(FbxNode* node, FbxScene* scene) {
 			}
 		}
 	}
+
 	//全体の頂点情報に情報を格納する
 	int skinCount = mesh->GetDeformerCount(FbxDeformer::eSkin);//メッシュにボーンが割り当てられているか
 	for (int i = 0; i < skinCount; ++i) {
-		FbxSkin* skin = (FbxSkin*)mesh->GetDeformer(i, FbxDeformer::eSkin);
+		auto skin = (FbxSkin*)mesh->GetDeformer(i, FbxDeformer::eSkin);
 		int PolyIndex = 0;
 		int UVIndex = 0;
 		for (int j = 0; j < skin->GetClusterCount(); j++)
@@ -372,7 +377,6 @@ void FBXLoader::LoadSkinAnim(FbxNode* node, FbxScene* scene) {
 			}
 		}
 	}
-
 	
 
 	//アニメーション参考: TKING45MEMO
@@ -380,21 +384,21 @@ void FBXLoader::LoadSkinAnim(FbxNode* node, FbxScene* scene) {
 	int timeCount = 0;
 	FbxAMatrix globalFramepos = node->EvaluateGlobalTransform(timeCount);
 	FbxAMatrix nodeTRSmat = GetGeometryTransformation(node);//TRS行列の作成
-	FbxSkin* skinD = (FbxSkin*)mesh->GetDeformer(0, FbxDeformer::eSkin);
+	auto skinD = (FbxSkin*)mesh->GetDeformer(0, FbxDeformer::eSkin);
 	int clusterCount = skinD->GetClusterCount();
 	_boneArray.resize(clusterCount);
 	//ボーンごとに行列作成
 	for (int cidx = 0; cidx < clusterCount; cidx++) {
 		_boneArray[cidx].bindPose = DirectX::XMMatrixIdentity();
 		// クラスタ(ボーン)の取り出し
-		FbxCluster* c = skinD->GetCluster(cidx);
+		auto c = skinD->GetCluster(cidx);
 		FbxAMatrix clusterTRS;
 		FbxAMatrix localpos;
 		c->GetTransformMatrix(clusterTRS);
 		clusterTRS *= nodeTRSmat;
 		c->GetTransformLinkMatrix(localpos);//クラスターのローカル座標
 		auto framepos = c->GetLink()->EvaluateGlobalTransform(timeCount);
-		auto cRInitPos = localpos.Inverse() * clusterTRS;//
+		auto cRInitPos = localpos.Inverse() * clusterTRS;
 		auto newpos = globalFramepos.Inverse() * framepos;
 		auto bindpose = newpos * cRInitPos;//inverseで原点に戻し、フレーム時姿勢行列をかけていきます
 		_boneArray[cidx].bindPose = ToXm(bindpose);

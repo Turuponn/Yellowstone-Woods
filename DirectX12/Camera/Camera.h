@@ -11,7 +11,7 @@ private:
 	CAMERA_MATRIX UpdateConstance();
 public:
 	Camera();
-	virtual ~Camera();
+	~Camera();
 
 
 	void CreateCamera(std::shared_ptr<D3D12DeviceManager>& device);

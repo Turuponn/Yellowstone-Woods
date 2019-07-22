@@ -28,7 +28,7 @@ private:
 
 public:
 	DirectionalLightManager();
-	virtual ~DirectionalLightManager();
+	~DirectionalLightManager();
 
 	//•½sŒõŒ¹‚ğ¶¬
 	void DirectionalLightCreate(std::shared_ptr<D3D12DeviceManager> device, std::shared_ptr<RootSignatureManager>& rootsignature);

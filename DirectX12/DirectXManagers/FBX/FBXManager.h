@@ -78,7 +78,7 @@ private:
 
 public:
 	FBXManager();
-	virtual ~FBXManager();
+	~FBXManager();
 
 	/// <summary>
 	/// 通常ロード + DeferredRendar
@@ -166,9 +166,7 @@ public:
 	void AnimationEND();
 private:
 	std::shared_ptr<PipelineStateManager> _psm;
-	std::shared_ptr<PipelineStateManager> _psmSM;//ShadowMap
-	
-	
+
 
 	//回転: クウォータニオン
 	DirectX::XMVECTOR _rotationAxis;

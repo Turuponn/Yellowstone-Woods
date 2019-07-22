@@ -70,8 +70,8 @@ public:
 	void SetDrawPipeline(std::shared_ptr<ComandManager>& comand);
 
 private:
-	std::vector<Microsoft::WRL::ComPtr<ID3D12Resource>> _rtvbuffer;
 	Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> _rtvheap;
+	std::vector< Microsoft::WRL::ComPtr<ID3D12Resource>> _rtvbuffer;
 	std::vector<std::shared_ptr<TextureManager>> _texMs;
 	std::vector<DXGI_FORMAT> _rtvformats;//レンダーターゲットのフォーマット
 

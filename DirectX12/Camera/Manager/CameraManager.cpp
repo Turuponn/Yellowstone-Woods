@@ -20,7 +20,7 @@ void CameraManager::SetMatrix(CAMERA_MATRIX& newmat) {
 	*_camAddress = newmat;
 }
 void CameraManager::Update(std::shared_ptr<ComandManager>& comand, ROOT_PARAM_TYPE type) {
-	auto heap = _constantManager->GetDescHeap().Get();
+	auto heap = _constantManager->GetDescHeap();
 	comand->GetGraphicsCommandList()->SetDescriptorHeaps(1, &heap);
 	comand->GetGraphicsCommandList()->SetGraphicsRootDescriptorTable(type, _constantManager->GetDescHeap()->GetGPUDescriptorHandleForHeapStart());
 }

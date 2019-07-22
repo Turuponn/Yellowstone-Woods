@@ -19,7 +19,7 @@ private:
 	void CreateViewDesc(std::shared_ptr<D3D12DeviceManager>& device);
 public:
 	ConstantManager();
-	virtual ~ConstantManager();
+	~ConstantManager();
 	/// <summary>
 	/// 定数バッファを作成する　ついでにビューも作る
 	/// </summary>
@@ -34,10 +34,10 @@ public:
 	void ConstantbufferMap(void* address);
 	//コンスタントバッファをアンマップする
 	void ConstantbufferUnMap();
-	Microsoft::WRL::ComPtr<ID3D12DescriptorHeap>& GetDescHeap();
+	ID3D12DescriptorHeap*& GetDescHeap();
 private:
 	Microsoft::WRL::ComPtr<ID3D12Resource> _cbuffer;
-	Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> _descHeap;
+	ID3D12DescriptorHeap* _descHeap;//TODO: 共有して定数を使用するため、Comを使用すると消滅してしまう可能性がある
 	std::shared_ptr<ResoceMapUnmap> _resocemapunmap;
 	int _desc_count;
 	UINT64 _agin;

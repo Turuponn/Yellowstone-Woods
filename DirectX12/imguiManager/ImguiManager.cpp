@@ -39,7 +39,7 @@ bool ImguiManager::Initialize(std::shared_ptr<D3D12DeviceManager>& device,std::s
 	_guitex = guitex;
 	_guitex->SRVCreateHeap(device);
 	if (ImGui_ImplDX12_Init(
-		device->GetDevice(),
+		device->GetDevice().Get(),
 		1,
 		DXGI_FORMAT_R8G8B8A8_UNORM,
 		_guitex->GetSrvHeap()->GetCPUDescriptorHandleForHeapStart(),
@@ -199,15 +199,26 @@ void ImguiManager::PostGui(std::shared_ptr<ComandManager>& comand) {
 	ImGui_ImplDX12_RenderDrawData(ImGui::GetDrawData(), comand->GetGraphicsCommandList().Get());
 }
 
-void ImguiManager::ShowAddMeshVector(Vector3& newparam, std::string& text, std::string& label_x, std::string& label_y, std::string& label_z, float maxsize,float minsize) {
+void ImguiManager::ShowAddMeshVector3(Vector3& newparam, std::string& text, std::string& label_x, std::string& label_y, std::string& label_z, float maxsize,float minsize) {
 		ImGui::Text(text.c_str());
 		ImGui::SliderFloat(label_x.c_str(), &newparam.x, minsize, maxsize);
 		ImGui::SliderFloat(label_y.c_str(), &newparam.y, minsize, maxsize);
 		ImGui::SliderFloat(label_z.c_str(), &newparam.z, minsize, maxsize);
 }
+void ImguiManager::ShowAddMeshVector4(Vector4& newparam, std::string& text, std::string& label_x, std::string& label_y, std::string& label_z, std::string& label_w, float maxsize, float minsize) {
+	ImGui::Text(text.c_str());
+	ImGui::SliderFloat(label_x.c_str(), &newparam.x, minsize, maxsize);
+	ImGui::SliderFloat(label_y.c_str(), &newparam.y, minsize, maxsize);
+	ImGui::SliderFloat(label_z.c_str(), &newparam.z, minsize, maxsize);
+	ImGui::SliderFloat(label_w.c_str(), &newparam.w, minsize, maxsize);
+}
 void ImguiManager::ShowAddMeshFloat(float& newparam, std::string& text, std::string& label, float maxsize, float minsize) {
 	ImGui::Text(text.c_str());
 	ImGui::SliderFloat(label.c_str(), &newparam, minsize, maxsize);
+}
+void ImguiManager::ShowAddMeshInt(int& newparam, std::string& text, std::string& label, int maxsize, int minsize) {
+	ImGui::Text(text.c_str());
+	ImGui::SliderInt(label.c_str(),&newparam, maxsize, minsize);
 }
 ///==========================================
 /// Acsess

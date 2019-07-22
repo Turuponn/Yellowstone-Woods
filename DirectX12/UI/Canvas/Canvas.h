@@ -2,7 +2,6 @@
 
 #include <memory>
 #include <string>
-#include <wrl.h>
 #include <vector>
 #include <tchar.h>
 #include "Geometori.h"
@@ -30,6 +29,7 @@ struct SHADA_CANVAS {
 };
 struct CBUFF_CANVAS {
 	DirectX::XMMATRIX canvas_world;
+	DirectX::XMFLOAT4 canvas_color;
 };
 struct VERTEX_CANVAS {
 	DirectX::XMFLOAT3 pos;
@@ -43,6 +43,7 @@ struct WORLDMAT_CANVAS {
 	DirectX::XMVECTOR canvas_translate;
 	DirectX::XMVECTOR canvas_rotateorigin;
 	float canvas_rotate;
+	DirectX::XMFLOAT4 canvas_color;
 };
 
 
@@ -98,15 +99,21 @@ public:
 	/// <param name="newscale"></param>
 	void SetScale(const Vector3& newscale);
 	/// <summary>
-	/// 回転量を入れる
-	/// </summary>
-	/// <param name="newrotate"></param>
-	void SetRotate(const float newrotate);
-	/// <summary>
 	/// 回転原点を入力します
 	/// </summary>
 	/// <param name="neworigin"></param>
 	void SetRotateOrigin(const Vector3& neworigin);
+	/// <summary>
+	/// 色を指定します
+	/// </summary>
+	/// <param name="newcolor"></param>
+	void SetColor(const Vector4& newcolor);
+	/// <summary>
+	/// 回転量を入れる
+	/// </summary>
+	/// <param name="newrotate"></param>
+	void SetRotate(const float newrotate);
+
 
 private:
 	std::shared_ptr<VertexShadaManager> _vs;
@@ -117,7 +124,7 @@ private:
 	std::shared_ptr<TextureManager> _textureM;
 	std::vector<VERTEX_CANVAS> _vertexs;
 	VERTEX_CANVAS* _vaddress;
-	CBUFF_CANVAS *_cbuffaddress;
+	CBUFF_CANVAS*_cbuffaddress;
 	WORLDMAT_CANVAS _canvasmat;
 	bool _usetextureF;//テクスチャ使用するかどうか true:使用する false:使用しない
 };

@@ -2,7 +2,6 @@
 
 
 #include <memory>
-#include <wrl.h>
 
 struct ID3D10Blob;
 typedef ID3D10Blob ID3DBlob;
@@ -18,7 +17,7 @@ private:
 
 public:
 	ComputeShadaManager();
-	virtual ~ComputeShadaManager();
+	~ComputeShadaManager();
 
 
 	void Initialize();
@@ -58,12 +57,12 @@ public:
 	///　シェーダバイナリを返す
 	/// </summary>
 	/// <returns></returns>
-	Microsoft::WRL::ComPtr<ID3DBlob>& GetCSShada();
+	ID3DBlob*& GetCSShada();
 	/// <summary>
 	/// UAV用ヒープを返す
 	/// </summary>
 	/// <returns></returns>
-	Microsoft::WRL::ComPtr<ID3D12DescriptorHeap>& GetUAVHeap();
+	ID3D12DescriptorHeap*& GetUAVHeap();
 	//SRV====================================================================
 	void CreateSRVHeap(std::shared_ptr<D3D12DeviceManager>& device);
 	void CreateSRView(std::shared_ptr<D3D12DeviceManager>& device);
@@ -73,19 +72,19 @@ public:
 	/// SRV用ヒープを返す
 	/// </summary>
 	/// <returns></returns>
-	Microsoft::WRL::ComPtr<ID3D12DescriptorHeap>& GetSRVHeap();
+	ID3D12DescriptorHeap*& GetSRVHeap();
 
 
 
-	Microsoft::WRL::ComPtr<ID3D12Resource>& GetUAVBuffer();
+	ID3D12Resource*& GetUAVBuffer();
 	void StartResoce(std::shared_ptr<ComandManager>& comand);
 	void EndResoce(std::shared_ptr<ComandManager>& comand);
 
 private:
-	Microsoft::WRL::ComPtr<ID3DBlob> _cs;
-	Microsoft::WRL::ComPtr<ID3D12Resource> _csbuffer;
-	Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> _uavDescHeap;
-	Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> _srvDescHeap;
+	ID3DBlob* _cs;
+	ID3D12Resource* _csbuffer;
+	ID3D12DescriptorHeap* _uavDescHeap;
+	ID3D12DescriptorHeap* _srvDescHeap;
 	std::shared_ptr<TextureManager> _texm;
 	std::shared_ptr<ResoceMapUnmap> _rmap;
 };

@@ -4,7 +4,6 @@
 #include <memory>
 #include <wrl.h>
 
-
 struct ID3D12Resource;
 struct ID3D12RootSignature;
 struct ID3D12DescriptorHeap;
@@ -17,7 +16,7 @@ class FenceManager;
 class DepthManager;
 class RenderTargetCreate;
 class D2DManager;
-class D3D11On12DeviceManager;
+//class D3D11On12DeviceManager;
 
 
 enum DXGI_FORMAT;
@@ -34,7 +33,7 @@ private:
 	void RenderTargetScissorRect();
 protected:
 	RenderTargetManager();
-	virtual ~RenderTargetManager();
+	~RenderTargetManager();
 	
 	void Initialize(
 		std::shared_ptr<D3D12DeviceManager>& device,
@@ -59,6 +58,15 @@ protected:
 		const int heapnum
 	);
 	/// <summary>
+	/// RTVをClearColorにリセットします
+	/// </summary>
+	/// <param name="comand"></param>
+	/// <param name="startdescheap"></param>
+	void ResetRTV(
+		std::shared_ptr<ComandManager>& comand,
+		D3D12_CPU_DESCRIPTOR_HANDLE& startdescheap
+	);
+	/// <summary>
 	/// スワップチェイン用に作成したRTVを更新します
 	/// </summary>
 	/// <param name="swapchain"></param>
@@ -77,8 +85,7 @@ private:
 	std::vector<ID3D12Resource*> _renderTargets;//not D2D RTV
 	std::shared_ptr<RenderTargetCreate> _rtc;
 	std::shared_ptr<D2DManager> _d2d;
-	std::shared_ptr<D3D11On12DeviceManager> _dx11on12device;
-	Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> _rtvdescheap;
+	//std::shared_ptr<D3D11On12DeviceManager> _dx11on12device;
 
 
 

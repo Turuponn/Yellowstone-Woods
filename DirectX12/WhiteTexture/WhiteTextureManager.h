@@ -2,7 +2,6 @@
 
 
 #include <memory>
-#include <wrl.h>//Microsoft::WRL
 #include <vector>
 
 
@@ -34,8 +33,8 @@ public:
 	void TexregisterDraw(std::shared_ptr<ComandManager>& comand, TEXTURE_REGISTER texture_register);
 
 private:
-	Microsoft::WRL::ComPtr<ID3D12Resource> _writetexbuff;//ホワイトテクスチャ用
-	Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> _writetexheap;//ホワイトテクスチャ用
+	ID3D12Resource* _writetexbuff;//ホワイトテクスチャ用
+	ID3D12DescriptorHeap* _writetexheap;//ホワイトテクスチャ用
 
 	std::shared_ptr<TextureManager> _texm;
 };

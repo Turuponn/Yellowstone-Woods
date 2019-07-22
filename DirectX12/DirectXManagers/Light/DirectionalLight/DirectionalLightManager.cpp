@@ -90,7 +90,7 @@ void DirectionalLightManager::Update(std::shared_ptr<ComandManager>& comand) {
 	
 	
 	
-	auto heap = _constantmanager->GetDescHeap().Get();
+	auto heap = _constantmanager->GetDescHeap();
 	comand->GetGraphicsCommandList()->SetDescriptorHeaps(1, &heap);
 	comand->GetGraphicsCommandList()->SetGraphicsRootDescriptorTable(ROOT_PARAM_CONSTANT_LIGHT, _constantmanager->GetDescHeap()->GetGPUDescriptorHandleForHeapStart());
 }

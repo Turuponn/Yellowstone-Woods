@@ -5,7 +5,7 @@
 DxGIManager::DxGIManager() {
 }
 DxGIManager::~DxGIManager() {
-	
+
 }
 
 void DxGIManager::CreateDxGiFactory() {
@@ -14,8 +14,8 @@ void DxGIManager::CreateDxGiFactory() {
 	if (result != S_OK) {
 		throw(1);
 	}
-	
+
 }
-Microsoft::WRL::ComPtr<IDXGIFactory4>& DxGIManager::GetDxGIFac(){
+Microsoft::WRL::ComPtr<IDXGIFactory4>& DxGIManager::GetDxGIFac() {
 	return _dxgifac4;
 }

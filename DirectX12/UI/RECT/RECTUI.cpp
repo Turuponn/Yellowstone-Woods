@@ -78,3 +78,12 @@ void RECTUI::SetPos(const Vector3& newpos) {
 void RECTUI::SetScale(const Vector3& newscale) {
 	_canvas->SetScale(newscale);
 }
+void RECTUI::SetRotate(const float newrotate) {
+	_canvas->SetRotate(newrotate);
+}
+void RECTUI::SetRotateOrigin(const Vector3& newrotateorigin) {
+	_canvas->SetRotateOrigin(newrotateorigin);
+}
+void RECTUI::SetColor(const Vector4& newcolor) {
+	_canvas->SetColor(newcolor);
+}

@@ -15,7 +15,7 @@ class FenceManager;
 class FowardLayerManager {
 public:
 	FowardLayerManager();
-	virtual ~FowardLayerManager();
+	~FowardLayerManager();
 
 	void CreateLayer(std::shared_ptr<D3D12DeviceManager>& device, std::shared_ptr<RootSignatureManager>& rootsignature);
 	void Draw(

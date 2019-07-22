@@ -52,7 +52,10 @@ void D2DManager::CreateFrameResoce(std::shared_ptr<D3D12DeviceManager>& device, 
 	auto backbuffernum = swapchain->GetFrameBufferCount();
 	_renderTargets.resize(backbuffernum);
 	_wrappedBackBuffers.resize(backbuffernum);
-	_d2dRenderTargets.resize(backbuffernum);    
+	_d2dRenderTargets.resize(backbuffernum);
+	/*
+	TODO: ComPtrˆË‘¶‚ÌÝŒv
+	*/
 	CD3DX12_CPU_DESCRIPTOR_HANDLE rtvHandle(swapchain->GetSwapChainDescHeap()->GetCPUDescriptorHandleForHeapStart());
 		auto rtvoffset = device->GetDevice()->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
 		for (UINT n = 0; n < swapchain->GetFrameBufferCount(); n++)

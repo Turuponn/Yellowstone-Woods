@@ -25,7 +25,9 @@ DepthRenderManager::DepthRenderManager() {
 
 }
 DepthRenderManager::~DepthRenderManager() {
-
+	SAFE_RELEASE(dh_buffer_);
+	SAFE_RELEASE(dh_texture_);
+	SAFE_RELEASE(d_buffer_);
 }
 void DepthRenderManager::CreateBufferHeap(std::shared_ptr<D3D12DeviceManager>& device) {
 	HRESULT result = E_FAIL;
@@ -66,7 +68,7 @@ void DepthRenderManager::DepthRenderInit(std::shared_ptr<D3D12DeviceManager>& de
 
 void DepthRenderManager::DepthRenderPre(std::shared_ptr<ComandManager>& comand) {
 	//テクスチャを深度書き込みに設定
-	comand->ComandRBarrier(D3D12_RESOURCE_STATE_GENERIC_READ, D3D12_RESOURCE_STATE_DEPTH_WRITE, d_buffer_.Get());
+	comand->ComandRBarrier(D3D12_RESOURCE_STATE_GENERIC_READ, D3D12_RESOURCE_STATE_DEPTH_WRITE, d_buffer_);
 	//深度バッファをクリア
 	comand->GetGraphicsCommandList()->ClearDepthStencilView(
 		dh_buffer_->GetCPUDescriptorHandleForHeapStart(),
@@ -80,15 +82,15 @@ void DepthRenderManager::DepthRenderPre(std::shared_ptr<ComandManager>& comand) 
 	comand->GetGraphicsCommandList()->RSSetViewports(1, &viewport_sm_);
 	comand->GetGraphicsCommandList()->RSSetScissorRects(1, &scissor_rect_sm_);
 	//描画用サンプラ先
-	comand->ComandSetDescriptorHeaps(1, dh_texture_.Get());
-	comand->ComandSetGraphicsRootDescriptorTable(ROOT_PARAM_TEXTURE_DEPTH, dh_texture_.Get());
+	comand->ComandSetDescriptorHeaps(1, dh_texture_);
+	comand->ComandSetGraphicsRootDescriptorTable(ROOT_PARAM_TEXTURE_DEPTH, dh_texture_);
 	comand->GetGraphicsCommandList()->OMSetRenderTargets(0, nullptr, FALSE, &dh_buffer_->GetCPUDescriptorHandleForHeapStart());
 
 
 	//普通の描画
 }
 void DepthRenderManager::DepthRenderPost(std::shared_ptr<ComandManager>& comand,std::shared_ptr<FenceManager>& fence) {
-	comand->ComandRBarrier(D3D12_RESOURCE_STATE_DEPTH_WRITE, D3D12_RESOURCE_STATE_GENERIC_READ, d_buffer_.Get());
+	comand->ComandRBarrier(D3D12_RESOURCE_STATE_DEPTH_WRITE, D3D12_RESOURCE_STATE_GENERIC_READ, d_buffer_);
 }
 void DepthRenderManager::CreateBuffer(std::shared_ptr<D3D12DeviceManager>& device) {
 	CreateBufferHeap(device);
@@ -136,7 +138,7 @@ void DepthRenderManager::CreateBufferView(std::shared_ptr<D3D12DeviceManager>& d
 	dsv_desc.Format = DXGI_FORMAT_D32_FLOAT;
 	dsv_desc.Texture2D.MipSlice = 0;
 	dsv_desc.Flags = D3D12_DSV_FLAG_NONE;
-	device->GetDevice()->CreateDepthStencilView(d_buffer_.Get(), &dsv_desc, dh_buffer_->GetCPUDescriptorHandleForHeapStart());
+	device->GetDevice()->CreateDepthStencilView(d_buffer_, &dsv_desc, dh_buffer_->GetCPUDescriptorHandleForHeapStart());
 
 
 
@@ -148,6 +150,6 @@ void DepthRenderManager::CreateBufferView(std::shared_ptr<D3D12DeviceManager>& d
 	resourct_view_desc.Texture2D.PlaneSlice = 0;
 	resourct_view_desc.Texture2D.ResourceMinLODClamp = 0.0F;
 	resourct_view_desc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
-	device->GetDevice()->CreateShaderResourceView(d_buffer_.Get(), &resourct_view_desc, dh_texture_->GetCPUDescriptorHandleForHeapStart());
+	device->GetDevice()->CreateShaderResourceView(d_buffer_, &resourct_view_desc, dh_texture_->GetCPUDescriptorHandleForHeapStart());
 
 }

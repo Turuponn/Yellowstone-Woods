@@ -42,6 +42,8 @@ FBXManager::FBXManager() {
 	_animinfo.animationF = false;
 	_animinfo.animationFrame = 0;
 	_animinfo.animname = "";
+	_cbuffAddress = nullptr;
+	_cbuffAddressSkinning = nullptr;
 }
 FBXManager::~FBXManager() {
 
@@ -73,7 +75,7 @@ void FBXManager::DeferredRender(FBX_DRAW& fbxdraw, TEXTURE_REGISTER texture_regi
 	}
 	cbffmat_bone = (JOINTBONE*)(((char*)cbffmat_bone) + ((sizeof(JOINTBONE) + 0xff) & ~0xff));
 	auto handle_cbuff_bone = _cbbone->GetDescHeap()->GetGPUDescriptorHandleForHeapStart();
-	auto heap = _cbbone->GetDescHeap().Get();
+	auto heap = _cbbone->GetDescHeap();
 	fbxdraw.comand->GetGraphicsCommandList()->SetDescriptorHeaps(1, &heap);
 	fbxdraw.comand->GetGraphicsCommandList()->SetGraphicsRootDescriptorTable(ROOT_PARAM_CONSTANT_TESTBONE, handle_cbuff_bone);
 
@@ -114,7 +116,7 @@ void FBXManager::DeferredRender(FBX_DRAW& fbxdraw, TEXTURE_REGISTER texture_regi
 			//’è”
 			UploadConstant(fbxdraw.comand, 0, materialidx, cbffmat);
 			cbffmat = (DR_MAT*)(((char*)cbffmat) + ((sizeof(DR_MAT) + 0xff) & ~0xff));
-			auto heap = _cb->GetDescHeap().Get();
+			auto heap = _cb->GetDescHeap();
 			fbxdraw.comand->GetGraphicsCommandList()->SetDescriptorHeaps(1, &heap);
 			fbxdraw.comand->GetGraphicsCommandList()->SetGraphicsRootDescriptorTable(ROOT_PARAM_CONSTANT_DR, handle_cbuff);
 			handle_cbuff.ptr += fbxdraw.device->GetDevice()->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);

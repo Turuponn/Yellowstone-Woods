@@ -93,7 +93,7 @@
     </ClCompile>
     <Link>
       <AdditionalLibraryDirectories>C:\Users\vtyye\Desktop\WorkSpace\DirectX12_Work\DirectX12_5\DirectX12\packages\okadio\lib;$(ProjectDir)DirectX12TURULibrary\Library\lib\Debug\MDD;$(ProgramW6432)\Autodesk\FBX\FBX SDK\2019.0\lib\vs2015\x64\debug;$(DXTEX_2_DIR)\DirectXTex\Bin\Desktop_2017_Win10\x64\Debug;C:\boost_1_68_0\stage\lib\x64;C:\Users\vtyye\Desktop\WorkSpace\DirectX12_Work\DirectX12_5\DirectX12\packages\Microsoft.glTF.CPP.1.6.3.1\build\native\lib\x64\Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>DirectX12TURULibrary.lib;DirectXTex.lib;libfbxsdk-md.lib;d2d1.lib;d3d11.lib;Dwrite.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>DirectX12TURULibrary.lib;DirectXTex.lib;libfbxsdk-md.lib;d2d1.lib;d3d11.lib;Dwrite.lib;winmm.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>$(OutDir)イエローストーンの森$(TargetExt)</OutputFile>
     </Link>
   </ItemDefinitionGroup>
@@ -129,20 +129,34 @@
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>DirectX12TURULibrary.lib;DirectXTex.lib;libfbxsdk-md.lib;d2d1.lib;d3d11.lib;Dwrite.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>DirectX12TURULibrary.lib;DirectXTex.lib;libfbxsdk-md.lib;d2d1.lib;d3d11.lib;Dwrite.lib;winmm.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>C:\Users\vtyye\Desktop\WorkSpace\DirectX12_Work\DirectX12_5\DirectX12\packages\okadio\lib;$(ProjectDir)DirectX12TURULibrary\Library\lib\Release\MD;$(ProgramW6432)\Autodesk\FBX\FBX SDK\2019.0\lib\vs2015\x64\release;$(DXTEX_2_DIR)\DirectXTex\Bin\Desktop_2017_Win10\x64\Release;C:\boost_1_68_0\stage\lib\x64;C:\Users\vtyye\Desktop\WorkSpace\DirectX12_Work\DirectX12_6\DirectX12\packages\Microsoft.glTF.CPP.1.6.3.1\build\native\lib\x64\Release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <OutputFile>$(OutDir)イエローストーンの森$(TargetExt)</OutputFile>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="DirectXManagers\D2D\D2DManager.h" />
+    <ClInclude Include="Character\Cow\CowManager.h" />
+    <ClInclude Include="Character\Player\PlayerManager.h" />
+    <ClInclude Include="Character\Wolf\WolfManager.h" />
+    <ClInclude Include="GameUI\Button\Button.h" />
+    <ClInclude Include="GameUI\FadeInOut\FadeInOut.h" />
+    <ClInclude Include="GameUI\GameUI.h" />
     <ClInclude Include="GameUI\HPbar\HPbar.h" />
+    <ClInclude Include="GameUI\ICON\ICON.h" />
+    <ClInclude Include="GameUI\Meat\Meat.h" />
+    <ClInclude Include="GameUI\UIDefault\UIDefault.h" />
+    <ClInclude Include="Game\Scene\EndScene\EndScene.h" />
+    <ClInclude Include="Game\Scene\EndScene\EndUI\EndUI.h" />
+    <ClInclude Include="Game\Scene\Scene.h" />
+    <ClInclude Include="Game\Scene\Stage1\Stage1.h" />
+    <ClInclude Include="Game\Scene\TitleScene\TitleScene.h" />
+    <ClInclude Include="Game\Scene\TitleScene\TitleUI\TitleUI.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="UI\Canvas\Canvas.h" />
     <ClInclude Include="Character\Character.h" />
-    <ClInclude Include="Character\Cow\Cow.h" />
-    <ClInclude Include="Character\Player\Player.h" />
-    <ClInclude Include="Character\Wolf\Wolf.h" />
+    <ClInclude Include="Character\Cow\CowCharacter\Cow.h" />
+    <ClInclude Include="Character\Player\PlayerCharacter\Player.h" />
+    <ClInclude Include="Character\Wolf\WolfCharacter\Wolf.h" />
     <ClInclude Include="Collider\Collider.h" />
     <ClInclude Include="Camera\Camera.h" />
     <ClInclude Include="Camera\Manager\CameraManager.h" />
@@ -157,7 +171,6 @@
     <ClInclude Include="DirectXManagers\DepthStencil\Depth\DepthManager.h" />
     <ClInclude Include="DirectXManagers\Device\D3D12DeviceManager.h" />
     <ClInclude Include="DirectXManagers\DirectInput\DirectInputManager.h" />
-    <ClInclude Include="DirectXManagers\DX11on12\D3D11On12DeviceManager.h" />
     <ClInclude Include="DirectXManagers\DxGI\DxGIManager.h" />
     <ClInclude Include="DirectXManagers\FBX\FBXManager.h" />
     <ClInclude Include="DirectXManagers\Fence\FenceManager.h" />
@@ -202,13 +215,27 @@
     <ClInclude Include="Geometori.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="DirectXManagers\D2D\D2DManager.cpp" />
+    <ClCompile Include="Character\Cow\CowManager.cpp" />
+    <ClCompile Include="Character\Player\PlayerManager.cpp" />
+    <ClCompile Include="Character\Wolf\WolfManager.cpp" />
+    <ClCompile Include="GameUI\Button\Button.cpp" />
+    <ClCompile Include="GameUI\FadeInOut\FadeInOut.cpp" />
+    <ClCompile Include="GameUI\GameUI.cpp" />
     <ClCompile Include="GameUI\HPbar\HPbar.cpp" />
+    <ClCompile Include="GameUI\ICON\ICON.cpp" />
+    <ClCompile Include="GameUI\Meat\Meat.cpp" />
+    <ClCompile Include="GameUI\UIDefault\UIDefault.cpp" />
+    <ClCompile Include="Game\Scene\EndScene\EndScene.cpp" />
+    <ClCompile Include="Game\Scene\EndScene\EndUI\EndUI.cpp" />
+    <ClCompile Include="Game\Scene\Scene.cpp" />
+    <ClCompile Include="Game\Scene\Stage1\Stage1.cpp" />
+    <ClCompile Include="Game\Scene\TitleScene\TitleScene.cpp" />
+    <ClCompile Include="Game\Scene\TitleScene\TitleUI\TitleUI.cpp" />
     <ClCompile Include="UI\Canvas\Canvas.cpp" />
     <ClCompile Include="Character\Character.cpp" />
-    <ClCompile Include="Character\Cow\Cow.cpp" />
-    <ClCompile Include="Character\Player\Player.cpp" />
-    <ClCompile Include="Character\Wolf\Wolf.cpp" />
+    <ClCompile Include="Character\Cow\CowCharacter\Cow.cpp" />
+    <ClCompile Include="Character\Player\PlayerCharacter\Player.cpp" />
+    <ClCompile Include="Character\Wolf\WolfCharacter\Wolf.cpp" />
     <ClCompile Include="Collider\Collider.cpp" />
     <ClCompile Include="Camera\Camera.cpp" />
     <ClCompile Include="Camera\Manager\CameraManager.cpp" />
@@ -221,7 +248,6 @@
     <ClCompile Include="DirectXManagers\DepthStencil\Depth\DepthManager.cpp" />
     <ClCompile Include="DirectXManagers\Device\D3D12DeviceManager.cpp" />
     <ClCompile Include="DirectXManagers\DirectInput\DirectInputManager.cpp" />
-    <ClCompile Include="DirectXManagers\DX11on12\D3D11On12DeviceManager.cpp" />
     <ClCompile Include="DirectXManagers\DxGI\DxGIManager.cpp" />
     <ClCompile Include="DirectXManagers\FBX\FBXManager.cpp" />
     <ClCompile Include="DirectXManagers\Fence\FenceManager.cpp" />

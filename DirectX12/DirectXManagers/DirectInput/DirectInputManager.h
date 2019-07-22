@@ -5,7 +5,7 @@ class WindowInit;
 class DirectInputManager {
 public:
 	DirectInputManager();
-	virtual ~DirectInputManager();
+	~DirectInputManager();
 
 	void Initialize(WindowInit& windowinit);
 

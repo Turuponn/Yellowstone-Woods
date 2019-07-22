@@ -8,16 +8,12 @@ PixcelShadaManager::PixcelShadaManager() {
 
 }
 PixcelShadaManager::~PixcelShadaManager() {
-	
 }
 
 void PixcelShadaManager::CreatePixelShada(wchar_t* filename, char* funcname) {
 	std::shared_ptr<ShadaCreate> sc(new ShadaCreate());
 	_shadacreate = sc;
 	_shadacreate->CreatePixelShada(filename, funcname, &_pixcelshada);
-}
-void PixcelShadaManager::CreatePixelShada(const std::string& filepath, const std::string& funcname) {
-	
 }
 
 

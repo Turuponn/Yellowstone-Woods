@@ -2,6 +2,7 @@
 
 #include <memory>
 #include <vector>
+#include <wrl.h>
 
 class PipelineStateCreate;
 class RootSignatureManager;
@@ -24,7 +25,7 @@ enum DXGI_FORMAT;
 
 struct PSTATEM {
 	std::shared_ptr<D3D12DeviceManager> device;
-	std::shared_ptr<RootSignatureManager> rootsignetur;
+	std::shared_ptr<RootSignatureManager> rootsignature;
 	D3D12_INPUT_ELEMENT_DESC* inputlaout;
 	const unsigned int inputLayoutNumElements;
 	std::shared_ptr<VertexShadaManager> vartexshada;
@@ -38,23 +39,25 @@ struct PSTATEM_COMPUTE {
 };
 
 
-
+/*
+1マテリアル 1PSO
+*/
 class PipelineStateManager {
 private:
 
 public:
 	PipelineStateManager();
-	virtual ~PipelineStateManager();
-
-	
-	//パイプラインステートを作る
-	//@  テクスチャマネージャーを入れる
-	//@inputlaout      レイアウト
-	//@inputLayoutNumElements 頂点レイアウトの要素数
-	//@device          DX12デバイズ
-	//@vartexshada     頂点シェーダ
-	//@pixelshada      ピクセルシェーダ
-    void CreatePiplineState(
+	~PipelineStateManager();
+	/// <summary>
+	///パイプラインステートを作る 
+	/// </summary>
+	/// <param name="device"></param>
+	/// <param name="rootsignetur"></param>
+	/// <param name="inputlaout"></param>
+	/// <param name="inputLayoutNumElements"></param>
+	/// <param name="vartexshada"></param>
+	/// <param name="pixelshada"></param>
+    void CreatePipelineState(
 		std::shared_ptr<D3D12DeviceManager>& device,
 		std::shared_ptr<RootSignatureManager>& rootsignetur,
 		D3D12_INPUT_ELEMENT_DESC* inputlaout, 
@@ -62,8 +65,16 @@ public:
 		std::shared_ptr<VertexShadaManager>& vartexshada,
 		std::shared_ptr<PixcelShadaManager>& pixelshada
 	);
-	
-	void CreatePiplineStateCubeMap(
+	/// <summary>
+	/// CubeMap用パイプラインステートを作成する
+	/// </summary>
+	/// <param name="device"></param>
+	/// <param name="rootsignetur"></param>
+	/// <param name="inputlaout"></param>
+	/// <param name="inputLayoutNumElements"></param>
+	/// <param name="vartexshada"></param>
+	/// <param name="pixelshada"></param>
+	void CreatePipelineStateCubeMap(
 		std::shared_ptr<D3D12DeviceManager>& device,
 		std::shared_ptr<RootSignatureManager>& rootsignetur,
 		D3D12_INPUT_ELEMENT_DESC* inputlaout,
@@ -81,6 +92,11 @@ public:
 		std::vector<DXGI_FORMAT>& rtv_formats
 	);
 	/// <summary>
+	/// 2D用パイプラインステートを作成する
+	/// </summary>
+	/// <param name="pstate"></param>
+	void CreatePipeline2D(PSTATEM& pstate);
+	/// <summary>
 	/// コンピュートシェーダ用パイプラインの作成
 	/// </summary>
 	/// <param name="compute"></param>
@@ -92,12 +108,12 @@ public:
 	//パイプラインをリセットする
 	void ReSetPipeline(std::shared_ptr<ComandManager>& comand, std::shared_ptr<SwapChainManager>& swapchain);
 	/// <summary>
-	/// パイプラインを返す TODO？: グラフィックス用かそれ以外も含めている
+	/// パイプラインを返す
 	/// </summary>
 	/// <returns></returns>
-	ID3D12PipelineState*& GetPipelineState();
+	Microsoft::WRL::ComPtr<ID3D12PipelineState>& GetPipelineState();
 
 
 private:
-	ID3D12PipelineState* _pipelinestate;//パイプライン
+	Microsoft::WRL::ComPtr<ID3D12PipelineState> _pipelinestate;//パイプライン
 };

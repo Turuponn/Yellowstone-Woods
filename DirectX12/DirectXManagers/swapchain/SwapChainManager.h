@@ -20,7 +20,7 @@ private:
 	void CreateSwapChainView(std::shared_ptr<D3D12DeviceManager>& device);
 public:
 	SwapChainManager();
-	virtual ~SwapChainManager();
+	~SwapChainManager();
 	void Initialize(std::shared_ptr<D3D12DeviceManager>& device, std::shared_ptr<ComandManager>& comand, std::shared_ptr<DxGIManager>& dxgi, HWND& hwnd);
 	Microsoft::WRL::ComPtr<IDXGISwapChain3>& GetSwapChain();
 	Microsoft::WRL::ComPtr<ID3D12DescriptorHeap>& GetSwapChainDescHeap();

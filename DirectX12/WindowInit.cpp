@@ -5,17 +5,29 @@
 #include "imguiManager\imgui\imgui_impl_win32.h"
 #include "imguiManager\imgui\imgui_impl_dx12.h"
 #include <d2d1.h>
+#include <mmsystem.h>//frameTimer
+
 
 WindowInit* WindowInit::mInstance = 0;
-
-
 const TCHAR* CLASS_NAME = _T("イエローストーンの森");
-LRESULT WindowProcedure(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam);
 
+
+
+namespace {
+	//FrameTime
+	LARGE_INTEGER _timeStart;
+	LARGE_INTEGER _timeEnd;
+	LARGE_INTEGER _timeFreq;
+	const float MIN_FREAM_TIME = 1.0f / 60;
+}
+
+LRESULT WindowProcedure(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam);
 WindowInit::WindowInit() {
 	_imguiResetF = false;
 	_swapchainResetF = false;
 	_rtvResetF = false;
+	_frameTime = 0;
+	_fps = 0;
 }
 
 WindowInit::~WindowInit() {
@@ -105,9 +117,30 @@ void WindowInit::WindowInitialize() {
 	WindowInit::USE().SetSwapChainResetF(false);
 	WindowInit::USE().SetRtvResetF(false);
 
+	
+	CreateFrameTimer();
+	
 
-
-
+}
+void WindowInit::FixedFrameTime() {
+	//Sleep法をつかって固定フレームレートにする
+	QueryPerformanceCounter(&_timeEnd);
+	_frameTime = static_cast<float>(_timeEnd.QuadPart - _timeStart.QuadPart) / static_cast<float>(_timeFreq.QuadPart);
+	if (_frameTime < MIN_FREAM_TIME) {
+		// ミリ秒に変換
+		DWORD sleepTime = static_cast<DWORD>((MIN_FREAM_TIME - _frameTime) * 1000);
+		timeBeginPeriod(1);
+		Sleep(sleepTime);   
+		timeEndPeriod(1); 
+		return;
+	}
+	if (_frameTime > 0.0) {
+		_fps = (_fps*0.99f) + (0.01f / _frameTime);
+	}
+	_timeStart = _timeEnd;
+}
+float WindowInit::GetFps() {
+	return _fps;
 }
 void WindowInit::destroy() {
 	SAFE_DELETE(mInstance)
@@ -122,6 +155,13 @@ WindowInit& WindowInit::USE() {
 		throw(GameError::GameError(GameErrorNS::FATAL_ERROR, _T("WindowInit"), _T("mInstance == nullptr")));
 	}
 	return *mInstance;
+}
+void WindowInit::CreateFrameTimer() {
+	//精度取得
+	if (QueryPerformanceFrequency(&_timeFreq) == FALSE) {
+		throw(1);//未対応扱い
+	}
+	QueryPerformanceCounter(&_timeStart);
 }
 HWND& WindowInit::GetWindowHwnd() {
 	return _hwnd;
@@ -144,6 +184,9 @@ void WindowInit::SetSwapChainResetF(bool newf) {
 void WindowInit::SetRtvResetF(bool newf) {
 	_rtvResetF = newf;
 }
+
+
+
 extern LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 LRESULT WindowProcedure(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam) {
 	if (ImGui_ImplWin32_WndProcHandler(hwnd, msg, wparam, lparam)) { return true; }

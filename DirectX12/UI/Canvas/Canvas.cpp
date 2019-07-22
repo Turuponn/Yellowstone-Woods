@@ -20,13 +20,14 @@ namespace {
 	const int screenn_size_x = SCREEN_SIZE_X;
 	const int screenn_size_y = SCREEN_SIZE_Y;
 	//正規化用最大値と最小値
-	const int MAX = 1;
-	const int MIN = -1;
+	const int MAX = 2;
+	const int MIN = -2;
 }
 
 
 Canvas::Canvas() {
 	_vaddress = nullptr;
+	_cbuffaddress = nullptr;
 	_usetextureF = false;
 
 	_canvasmat.canvas_rotate = 0;
@@ -48,7 +49,19 @@ void Canvas::CreateShada(std::shared_ptr<D3D12DeviceManager>& device, std::share
 	_pipe = pipe;
 	_vs->CreateVertexShada(shadalayer.VSFilepath, shadalayer.FancnameVS);
 	_ps->CreatePixelShada(shadalayer.PSFilepath, shadalayer.FancnamePS);
-	_pipe->CreatePiplineState(device, rootsignature, &shadalayer.inputLaout[0], shadalayer.inputLaout.size(), _vs, _ps);
+	PSTATEM pstate = {
+		device,
+		rootsignature,
+		&shadalayer.inputLaout[0],
+		shadalayer.inputLaout.size(),
+		 _vs,
+		 _ps,
+		 nullptr
+	};
+
+
+
+	_pipe->CreatePipeline2D(pstate);
 }
 void Canvas::CreateVertexBuffer(std::shared_ptr<D3D12DeviceManager>& device) {
 	std::shared_ptr<VertexBufferManager> vbuffM(new VertexBufferManager());
@@ -88,10 +101,10 @@ void Canvas::UpdateCbuffer(std::shared_ptr<Camera>& camera, std::shared_ptr<Coma
 		_canvasmat.canvas_translate
 		);
 	 _cbuffaddress->canvas_world = newworldmat;
-
+	 _cbuffaddress->canvas_color = _canvasmat.canvas_color;
 	
 	_cbuff->ConstantbufferUnMap();
-	auto heap = _cbuff->GetDescHeap().Get();
+	auto heap = _cbuff->GetDescHeap();
 	comand->GetGraphicsCommandList()->SetDescriptorHeaps(1, &heap);
 	comand->GetGraphicsCommandList()->SetGraphicsRootDescriptorTable(ROOT_PARAM_CONSTANT_CANVAS, heap->GetGPUDescriptorHandleForHeapStart());
 
@@ -103,6 +116,9 @@ void Canvas::CreateTextureCanvas(std::shared_ptr<D3D12DeviceManager>& device,std
 }
 void Canvas::SetRotateOrigin(const Vector3& neworigin) {
 	_canvasmat.canvas_rotateorigin = { neworigin.x ,neworigin.y,neworigin.z };
+}
+void Canvas::SetColor(const Vector4& newcolor) {
+	_canvasmat.canvas_color = DirectX::XMFLOAT4(newcolor.x, newcolor.y, newcolor.z, newcolor.w);
 }
 void Canvas::SetPos(const Vector3& newpos) {
 	//スクリーン座標系を作成するために

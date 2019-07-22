@@ -9,14 +9,13 @@
 #include "constance.h"
 #include <d3d12.h>
 
-int buffsize;
+
 
 VertexBufferManager::VertexBufferManager() {
 	buffsize = 0;
 	_vertexview = nullptr;
 }
 VertexBufferManager::~VertexBufferManager() {
-	
 	SAFE_DELETE(_vertexview);
 }
 
@@ -31,7 +30,7 @@ void VertexBufferManager::CreateVertexBuffer(std::shared_ptr<D3D12DeviceManager>
 void VertexBufferManager::CreateBuffer(std::shared_ptr<D3D12DeviceManager>& device,const int allvertexsize) {
 	std::shared_ptr<VertexBufferCreate> vb(new VertexBufferCreate());
 	buffsize = allvertexsize;
-	vb->CreateBuffer(device->GetDevice(), allvertexsize, &_vertexbuffer);
+	vb->CreateBuffer(device->GetDevice().Get(), allvertexsize, &_vertexbuffer);
 }
 void VertexBufferManager::CreateView(const int onevertexsize) {
 	if (buffsize == 0) {
@@ -55,7 +54,8 @@ void VertexBufferManager::ResoceUnmap() {
 	_resocemapunmap->Buffer_Unmap(_vertexbuffer.Get());
 }
 void VertexBufferManager::ResoceGPUWait(std::shared_ptr<FenceManager>& fence,std::shared_ptr<ComandManager>& comand) {
-	comand->ComandRBarrier(D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_GENERIC_READ, _vertexbuffer.Get());
+	auto rb = _vertexbuffer.Get();
+	comand->ComandRBarrier(D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_GENERIC_READ, rb);
 	comand->ComandClose();
 	comand->ComandExecuteCommandList();
 	comand->ComandListWaitPorlling(fence);

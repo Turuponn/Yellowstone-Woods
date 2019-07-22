@@ -23,7 +23,7 @@ void SwapChainManager::Initialize(std::shared_ptr<D3D12DeviceManager>& device, s
 void SwapChainManager::CreateSwapChain(std::shared_ptr<D3D12DeviceManager>& device, std::shared_ptr<ComandManager>& comand,std::shared_ptr<DxGIManager>& dxgi, HWND& hwnd) {
 	HRESULT result = E_FAIL;
 	std::shared_ptr<SwapChainCreate> scC(new SwapChainCreate());
-	scC->CreateSwapChain(SCREEN_SIZE_X, SCREEN_SIZE_Y, dxgi->GetDxGIFac().Get(), hwnd, device->GetDevice(), comand->GetComandQueue().Get(), &_swapchain);
+	scC->CreateSwapChain(SCREEN_SIZE_X, SCREEN_SIZE_Y, dxgi->GetDxGIFac().Get(), hwnd, device->GetDevice().Get(), comand->GetComandQueue().Get(), &_swapchain);
 }
 
 void SwapChainManager::CreateSwapChainView(std::shared_ptr<D3D12DeviceManager>& device) {
@@ -31,7 +31,7 @@ void SwapChainManager::CreateSwapChainView(std::shared_ptr<D3D12DeviceManager>& 
 	DXGI_SWAP_CHAIN_DESC swcDesc = {};
 	_swapchain->GetDesc(&swcDesc);
 	int renderTargetsNum = swcDesc.BufferCount;
-	scV->CreateSwapChainViewDesc(device->GetDevice(), renderTargetsNum, &_descheap);
+	scV->CreateSwapChainViewDesc(device->GetDevice().Get(), renderTargetsNum, &_descheap);
 }
 int SwapChainManager::GetFrameBufferCount() {
 	DXGI_SWAP_CHAIN_DESC swcDesc = {};

@@ -23,7 +23,7 @@ private:
 	void CreateView(const int onevertexsize);
 public:
 	VertexBufferManager();
-	virtual ~VertexBufferManager();
+	~VertexBufferManager();
 
 	//初期化
 	//@param allvertexsize 全頂点サイズ
@@ -46,4 +46,5 @@ private:
 	std::shared_ptr<ResoceMapUnmap> _resocemapunmap;
 	Microsoft::WRL::ComPtr<ID3D12Resource> _vertexbuffer;
 	D3D12_VERTEX_BUFFER_VIEW* _vertexview;
+	int buffsize;
 };

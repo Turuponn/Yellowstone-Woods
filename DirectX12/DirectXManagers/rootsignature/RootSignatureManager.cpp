@@ -10,12 +10,8 @@
 
 
 RootSignatureManager::RootSignatureManager() {
-	_signatureblob = nullptr;
-	_rootSignature = nullptr;
 }
 RootSignatureManager::~RootSignatureManager() {
-	SAFE_RELEASE(_signatureblob);
-	SAFE_RELEASE(_rootSignature);
 }
 
 
@@ -27,7 +23,7 @@ void RootSignatureManager::Initialize(std::shared_ptr<D3D12DeviceManager>& devic
 	InitRootParameters();
 	InitSmpler();
 	rs->SilializeRootsignature(_staticSamplers, _numParameters, &_signatureblob);
-	rs->CreateRootSigneture(device->GetDevice(), _signatureblob, &_rootSignature);
+	rs->CreateRootSigneture(device->GetDevice().Get(), _signatureblob.Get(), &_rootSignature);
 	 
 }
 void RootSignatureManager::InitSmpler() {
@@ -304,7 +300,7 @@ void RootSignatureManager::InitStaticRengeType() {
 
 }
 #pragma endregion
-ID3D12RootSignature*& RootSignatureManager::GetRootSignature() {
+Microsoft::WRL::ComPtr<ID3D12RootSignature>& RootSignatureManager::GetRootSignature() {
 	return _rootSignature;
 }
 

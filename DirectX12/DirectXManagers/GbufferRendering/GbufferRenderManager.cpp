@@ -70,7 +70,7 @@ namespace {
 			D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA,
 			0
 		},
-	    {
+		{
 			"WEIGHTIDX",
 			0,
 			DXGI_FORMAT_R32G32B32A32_FLOAT,
@@ -78,8 +78,8 @@ namespace {
 			D3D12_APPEND_ALIGNED_ELEMENT,
 			D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA,
 			0,
-	    },
-	    {
+		},
+		{
 			"JOINTIDX",
 			0,
 			DXGI_FORMAT_R32G32B32A32_FLOAT,
@@ -87,7 +87,7 @@ namespace {
 			D3D12_APPEND_ALIGNED_ELEMENT,
 			D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA,
 			0,
-	     },
+		 },
 	};
 
 	//Gbuff CubeMap
@@ -149,14 +149,14 @@ namespace {
 }
 
 GbufferRenderManager::GbufferRenderManager() {
-	
+
 }
 GbufferRenderManager::~GbufferRenderManager() {
-
+	
 }
 
 
-void GbufferRenderManager::CreateGbuffer(shared_ptr<D3D12DeviceManager>& device, std::shared_ptr<ComandManager>& comand,std::shared_ptr<RootSignatureManager>& rootsignature) {
+void GbufferRenderManager::CreateGbuffer(shared_ptr<D3D12DeviceManager>& device, std::shared_ptr<ComandManager>& comand, std::shared_ptr<RootSignatureManager>& rootsignature) {
 	_rtvformats.resize(RTVNUM);
 	for (int i = 0; i < RTVNUM; i++) {
 		_rtvformats[i] = _rtvFormat[i];
@@ -166,17 +166,17 @@ void GbufferRenderManager::CreateGbuffer(shared_ptr<D3D12DeviceManager>& device,
 	CreateVS();
 	CreatePS();
 	CreateGS();
-	CreatePipeline(device,rootsignature);
+	CreatePipeline(device, rootsignature);
 }
 void GbufferRenderManager::CreateRT(std::shared_ptr<D3D12DeviceManager>& device) {
 	shared_ptr<RenderTargetCreate> rtc(new RenderTargetCreate());
-	rtc->RTVCreateHeaps(device->GetDevice(), RTVNUM, &_rtvheap);
+	rtc->RTVCreateHeaps(device->GetDevice().Get(), RTVNUM, &_rtvheap);
 	_rtvbuffer.resize(RTVNUM);
 	SIZE_T ptr = _rtvheap->GetCPUDescriptorHandleForHeapStart().ptr;
 	SIZE_T offsetted = 0;
 	for (int i = 0; i < RTVNUM; i++) {
 		rtc->CreateRTBuffer(
-			device->GetDevice(),
+			device->GetDevice().Get(),
 			SCREEN_SIZE_X,
 			SCREEN_SIZE_Y,
 			D3D12_RESOURCE_STATE_RENDER_TARGET,
@@ -187,7 +187,7 @@ void GbufferRenderManager::CreateRT(std::shared_ptr<D3D12DeviceManager>& device)
 		D3D12_CPU_DESCRIPTOR_HANDLE desc = {};
 		desc.ptr = offsetted;
 		rtc->CreateRTVViews(
-			device->GetDevice(),
+			device->GetDevice().Get(),
 			desc,
 			_rtvbuffer[i].Get(),
 			_rtvformats[i]
@@ -199,7 +199,8 @@ void GbufferRenderManager::CreateSRV(shared_ptr<D3D12DeviceManager>& device, std
 		shared_ptr<TextureManager> texM(new TextureManager());
 		_texMs.push_back(texM);
 		_texMs[i]->SRVCreateHeap(device);
-		_texMs[i]->SRVCreateView(device, _rtvformats[i], _rtvbuffer[i]);
+		auto b = _rtvbuffer[i].Get();
+		_texMs[i]->SRVCreateView(device, _rtvformats[i], b);
 	}
 }
 void GbufferRenderManager::CreateVS() {
@@ -210,7 +211,7 @@ void GbufferRenderManager::CreateVS() {
 	//キューブマップ
 	shared_ptr<VertexShadaManager> cmapvs(new VertexShadaManager());
 	_cmapvs = cmapvs;
-	_cmapvs->CreateVertexShada(Cmap_VSFilepath,Cmap_FancnameVS);
+	_cmapvs->CreateVertexShada(Cmap_VSFilepath, Cmap_FancnameVS);
 
 }
 void GbufferRenderManager::CreatePS() {
@@ -228,9 +229,9 @@ void GbufferRenderManager::CreateGS() {
 	_gs = gs;
 	_gs->CreateShada(GSFilepath, FancnameGS);
 }
-void GbufferRenderManager::CreatePipeline(shared_ptr<D3D12DeviceManager>& device,std::shared_ptr<RootSignatureManager>& rootsignature) {
-	
-	
+void GbufferRenderManager::CreatePipeline(shared_ptr<D3D12DeviceManager>& device, std::shared_ptr<RootSignatureManager>& rootsignature) {
+
+
 
 	//通常
 	shared_ptr<PipelineStateManager> p(new PipelineStateManager());
@@ -243,7 +244,7 @@ void GbufferRenderManager::CreatePipeline(shared_ptr<D3D12DeviceManager>& device
 		_vs,
 		_ps,
 		_gs
-		};
+	};
 	_rtvformats.resize(RTVNUM);
 	_mrtPipeline->CreatePStateDeferred(psatate, _rtvformats);
 	//CubaMap
@@ -263,29 +264,35 @@ void GbufferRenderManager::CreatePipeline(shared_ptr<D3D12DeviceManager>& device
 
 }
 
-void GbufferRenderManager::PreRender(std::shared_ptr<D3D12DeviceManager>& device,std::shared_ptr<ComandManager>& comand,std::shared_ptr<Graphics>& graphics,std::shared_ptr<SwapChainManager>& swapchain) {
+void GbufferRenderManager::PreRender(std::shared_ptr<D3D12DeviceManager>& device, std::shared_ptr<ComandManager>& comand, std::shared_ptr<Graphics>& graphics, std::shared_ptr<SwapChainManager>& swapchain) {
 	_mrtPipeline->SetPipeline(comand);
 	for (auto& buff : _rtvbuffer) {
-		comand->ComandRBarrier(D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT, buff.Get());
+		auto b = buff.Get();
+		comand->ComandRBarrier(D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT, b);
 	}
-	graphics->RTVUpdata(device,comand, swapchain, _rtvheap->GetCPUDescriptorHandleForHeapStart(), RTVNUM);
+	graphics->RTVUpdata(device, comand, swapchain, _rtvheap->GetCPUDescriptorHandleForHeapStart(), RTVNUM);
 	for (auto& buff : _rtvbuffer) {
-		comand->ComandRBarrier(D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET, buff.Get());
+		auto b = buff.Get();
+		comand->ComandRBarrier(D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET, b);
 	}
+	graphics->RTVClear(comand, _rtvheap->GetCPUDescriptorHandleForHeapStart());
 }
 void GbufferRenderManager::PostRender(std::shared_ptr<ComandManager>& comand, std::shared_ptr<FenceManager>& fence) {
-	Draw(comand,fence);
+	Draw(comand, fence);
 }
 void GbufferRenderManager::Draw(std::shared_ptr<ComandManager>& comand, std::shared_ptr<FenceManager>& fence) {
 	//Gバッファのレイアウト通りにテクスチャへ
-	comand->ComandSetDescriptorHeaps(1, _texMs[(int)GbuffLaout::COLOR]->GetSrvHeap());
-	comand->ComandSetGraphicsRootDescriptorTable(TEX_DR_COLOR, _texMs[(int)GbuffLaout::COLOR]->GetSrvHeap());
+	auto c = _texMs[(int)GbuffLaout::COLOR]->GetSrvHeap().Get();
+	comand->ComandSetDescriptorHeaps(1, c);
+	comand->ComandSetGraphicsRootDescriptorTable(TEX_DR_COLOR, c);
 
-	comand->ComandSetDescriptorHeaps(1, _texMs[(int)GbuffLaout::NORMAL]->GetSrvHeap());
-	comand->ComandSetGraphicsRootDescriptorTable(TEX_DR_NORMALMAP, _texMs[(int)GbuffLaout::NORMAL]->GetSrvHeap());
+	auto n = _texMs[(int)GbuffLaout::NORMAL]->GetSrvHeap().Get();
+	comand->ComandSetDescriptorHeaps(1, n);
+	comand->ComandSetGraphicsRootDescriptorTable(TEX_DR_NORMALMAP, n);
 
-	comand->ComandSetDescriptorHeaps(1, _texMs[(int)GbuffLaout::POS]->GetSrvHeap());
-	comand->ComandSetGraphicsRootDescriptorTable(TEX_DR_POSMAP, _texMs[(int)GbuffLaout::POS]->GetSrvHeap());
+	auto p = _texMs[(int)GbuffLaout::POS]->GetSrvHeap().Get();
+	comand->ComandSetDescriptorHeaps(1, p);
+	comand->ComandSetGraphicsRootDescriptorTable(TEX_DR_POSMAP, p);
 
 
 }

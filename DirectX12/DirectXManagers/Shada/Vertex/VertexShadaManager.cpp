@@ -10,7 +10,6 @@ VertexShadaManager::VertexShadaManager() {
 
 }
 VertexShadaManager::~VertexShadaManager() {
-
 }
 void VertexShadaManager::CreateVertexShada(wchar_t* filename,char* funcname) {
 	std::shared_ptr<ShadaCreate> sc(new ShadaCreate());
@@ -38,6 +37,6 @@ void VertexShadaManager::CreateVertexShada(const std::string& filename, const st
 
 	_shadacreate->CreateVertexShada(name, newnaem2, &_vertexshada);
 }
-Microsoft::WRL::ComPtr<ID3D10Blob> VertexShadaManager::GetVertexShada() {
+Microsoft::WRL::ComPtr<ID3DBlob>& VertexShadaManager::GetVertexShada() {
 	return _vertexshada;
 }

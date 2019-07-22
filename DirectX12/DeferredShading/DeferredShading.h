@@ -40,7 +40,7 @@ private:
 	void Draw(std::shared_ptr<ComandManager>& comand, std::shared_ptr<FenceManager>& fence);
 public:
 	DeferredShading();
-	virtual ~DeferredShading();
+	~DeferredShading();
 
 	void Initialize(std::shared_ptr<D3D12DeviceManager>& device, std::shared_ptr<ComandManager>& comand, std::shared_ptr<RootSignatureManager>& rootsignature);
 
@@ -65,8 +65,8 @@ public:
 	void SetDrawPipeline(std::shared_ptr<ComandManager>& comand);
 
 private:
-	std::vector<Microsoft::WRL::ComPtr<ID3D12Resource>> _rtvbuffer;
 	Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> _rtvheap;
+	std::vector<Microsoft::WRL::ComPtr<ID3D12Resource>> _rtvbuffer;
 	std::vector<std::shared_ptr<TextureManager>> _texMs;
 	std::vector<DXGI_FORMAT> _rtvformats;
 

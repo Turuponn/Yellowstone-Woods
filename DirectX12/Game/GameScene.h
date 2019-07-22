@@ -8,28 +8,47 @@
 class WindowInit;
 class GameEngine;
 
-class Player;
+class PlayerManager;
 class Tree;
 class Map;
-class Wolf;
-class Cow;
+class WolfManager;
+class CowManager;
 class Entity;
 class GameUI;
 
+class Scene;
+
+struct GAMEMAIN;
+
 class GameScene {
-public:
+/*
+シングルトンクラス
+*/
+private:
+	void Init();
+private:
 	GameScene();
-	virtual ~GameScene();
-	void Initialize(WindowInit& windowinstance);
-	void Updata();
+	GameScene(const GameScene&);
+	GameScene& operator=(const GameScene&);
+public:
+	~GameScene();
+	
+	//更新
+	void Run();
+	//シーン変更
+	void ChengeScene(Scene* scene);
+	//実態生成
+	static GameScene& Instance();
+
 
 private:
 	std::shared_ptr<GameEngine> _ge;
-	std::shared_ptr<Player> _player;
+	std::shared_ptr<PlayerManager> _player;
 	std::shared_ptr<Tree> _tree;
 	std::shared_ptr<Map> _map;
-	std::shared_ptr<Wolf> _wolf;
-	std::shared_ptr<Cow> _cow;//TODO:　こいつは内部で複数になります
+	std::shared_ptr<WolfManager> _wolf;
+	std::shared_ptr<CowManager> _cow;
 	std::shared_ptr<Entity> _entity;//コリジョン算術用
 	std::shared_ptr<GameUI> _gameui;
+	Scene* _scene;//現在のシーン
 };
